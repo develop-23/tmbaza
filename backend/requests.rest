@@ -1,0 +1,213 @@
+### ADMIN REGISTER (faqat bir marta yaratish)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "wer",
+  "phone": "98765",
+  "password": "123456"
+}
+
+### ADMIN LOGIN (token olish)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "phone": "98765",
+  "password": "123456"
+}
+
+### TEST SECURE ROUTE (admin token kerak)
+GET http://localhost:3000/api/admin/secure
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+
+###############################################
+### USERS CRUD
+###############################################
+
+### User yaratish
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "Agabek",
+  "phone": "+99361123456"
+}
+
+### Barcha userlarni olish
+GET http://localhost:3000/api/users
+
+### Bitta userni olish
+GET http://localhost:3000/api/users/1
+
+### User yangilash
+PATCH http://localhost:3000/api/users/1
+Content-Type: application/json
+
+{
+  "name": "Agabek Matyakubow",
+  "phone": "+99361111222"
+}
+
+### User o‘chirish
+DELETE http://localhost:3000/api/users/1
+
+###############################################
+### CATEGORIES CRUD
+###############################################
+
+### Kategoriya yaratish
+POST http://localhost:3000/api/categories
+Content-Type: application/json
+
+{
+  "name": "Avtomobil",
+  "parent_id": null
+}
+
+### Barcha kategoriyalarni olish
+GET http://localhost:3000/api/categories
+
+### Kategoriya yangilash
+PATCH http://localhost:3000/api/categories/1
+Content-Type: application/json
+
+{
+  "name": "Yangi Avtomobil"
+}
+
+### Kategoriya o‘chirish
+DELETE http://localhost:3000/api/categories/1
+
+###############################################
+### LOCATIONS CRUD
+###############################################
+
+### Location yaratish
+POST http://localhost:3000/api/locations
+Content-Type: application/json
+
+{
+  "name": "Ashgabat",
+  "parent_id": null
+}
+
+### Location ro‘yxatini olish
+GET http://localhost:3000/api/locations
+
+### Location yangilash
+PATCH http://localhost:3000/api/locations/1
+Content-Type: application/json
+
+{
+  "name": "Ashgabat - Arzuw"
+}
+
+### Location o‘chirish
+DELETE http://localhost:3000/api/locations/1
+
+###############################################
+### ADS CRUD
+###############################################
+
+### E’lon yaratish
+POST http://localhost:3000/api/ads
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "category_id": 1,
+  "location_id": 1,
+  "title": "Toyota Camry 2020",
+  "description": "Yaxshi holatda mashina",
+  "price": 20000,
+  "is_vip": false
+}
+
+### E’lonlar ro‘yxati
+GET http://localhost:3000/api/ads
+
+### Bitta e’lon
+GET http://localhost:3000/api/ads/1
+
+### E’lon yangilash
+PATCH http://localhost:3000/api/ads/1
+Content-Type: application/json
+
+{
+  "title": "Toyota Camry 2021",
+  "description": "Yangi model",
+  "price": 22000,
+  "is_vip": true
+}
+
+### E’lon o‘chirish
+DELETE http://localhost:3000/api/ads/1
+
+###############################################
+### BANNERS CRUD (admin token kerak)
+###############################################
+
+### Banner yaratish
+POST http://localhost:3000/api/banners
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+Content-Type: application/json
+
+{
+  "title": "Super aksiya",
+  "image_url": "https://example.com/banner.jpg",
+  "link_url": "https://example.com",
+  "position": "top"
+}
+
+### Banner ro‘yxatini olish
+GET http://localhost:3000/api/banners
+
+### Banner yangilash
+PATCH http://localhost:3000/api/banners/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+Content-Type: application/json
+
+{
+  "title": "Yangi aksiya",
+  "image_url": "https://example.com/banner2.jpg",
+  "link_url": "https://example.com/2",
+  "position": "bottom"
+}
+
+### Banner o‘chirish
+DELETE http://localhost:3000/api/banners/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+
+###############################################
+### MAIN BLOCKS CRUD (admin token kerak)
+###############################################
+
+### Block yaratish
+POST http://localhost:3000/api/blocks
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+Content-Type: application/json
+
+{
+  "title": "Avtomobil bo‘limi",
+  "image_url": "https://example.com/block.jpg",
+  "service_link": "/cars"
+}
+
+### Block ro‘yxatini olish
+GET http://localhost:3000/api/blocks
+
+### Block yangilash
+PATCH http://localhost:3000/api/blocks/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
+Content-Type: application/json
+
+{
+  "title": "Yangi blok",
+  "image_url": "https://example.com/new-block.jpg",
+  "service_link": "/cars/new"
+}
+
+### Block o‘chirish
+DELETE http://localhost:3000/api/blocks/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDQ1NTY1NSwiZXhwIjoxNzU0NTQyMDU1fQ.c9Sxqo8RCQCpbpfbspY93HPKbE2W0C7uPKbcgefOKmY
