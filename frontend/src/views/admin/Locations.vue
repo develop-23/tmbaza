@@ -482,12 +482,15 @@ export default {
 
     const saveLocation = async () => {
       try {
+        const payload = { ...locationForm.value }
+        if (payload.parentId === '') delete payload.parentId
+
         if (editingLocation.value) {
-          await api.put(`/admin/locations/${editingLocation.value.id}`, locationForm.value)
+          await api.put(`/admin/locations/${editingLocation.value.id}`, payload)
         } else {
-          await api.post('/admin/locations', locationForm.value)
+          await api.post('/admin/locations', payload)
         }
-        
+
         showCreateModal.value = false
         editingLocation.value = null
         locationForm.value = { name: '', parentId: '', sortOrder: 0, active: true }
