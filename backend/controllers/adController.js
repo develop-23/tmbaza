@@ -16,9 +16,9 @@ export const create = async (req, res) => {
     const ad = await Ad.create({
         title,
         description,
-        CategoryId: categoryId,
-        LocationId: locationId,
-        UserId: req.user.id,
+        categoryId,
+        locationId,
+        userId: req.user.id,
         images,
         videos,
         status: 'pending'
@@ -38,7 +38,7 @@ export const update = async (req, res) => {
     const videos = (req.files?.videos || []).map((f) => `/uploads/media/${f.filename}`);
 
     const payload = req.body || {};
-    ['title','description','CategoryId','LocationId'].forEach((k) => {
+    ['title','description','categoryId','locationId'].forEach((k) => {
         if (payload[k] !== undefined) ad[k] = payload[k];
     });
     if (images.length || videos.length) {
@@ -71,8 +71,8 @@ export const list = async (req, res) => {
     const { q, categoryId, locationId, vip } = req.query;
     const where = { status: 'approved' };
     if (q) where.title = { [Op.iLike]: `%${q}%` };
-    if (categoryId) where.CategoryId = categoryId;
-    if (locationId) where.LocationId = locationId;
+    if (categoryId) where.categoryId = categoryId;
+    if (locationId) where.locationId = locationId;
     if (vip !== undefined) where.vip = vip === 'true';
 
     const { rows, count } = await Ad.findAndCountAll({
