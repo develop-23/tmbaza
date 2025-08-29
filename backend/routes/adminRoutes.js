@@ -56,7 +56,7 @@ r.get('/users/recent', async (req, res) => {
         const users = await User.findAll({
             limit: 5,
             order: [['createdAt', 'DESC']],
-            attributes: ['id', 'name', 'email', 'createdAt']
+            attributes: ['id', 'name', 'createdAt']
         });
         res.json(users);
     } catch (error) {
@@ -191,7 +191,7 @@ r.get('/operators', async (req, res) => {
     try {
         const operators = await User.findAll({
             where: { role: ['admin', 'operator'] },
-            attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+            attributes: ['id', 'name', 'role', 'createdAt'],
             order: [['createdAt', 'DESC']]
         });
         res.json(operators);
