@@ -21,7 +21,7 @@ export const listWithCounts = async (req, res) => {
                         Sequelize.literal(`(
                             SELECT COUNT(*)
                             FROM "Ads" AS "Ad"
-                            WHERE "Ad"."categoryId" = "Category"."id"
+                            WHERE "Ad"."categoryId" = "Categories"."id"
                             AND "Ad"."status" = 'approved'
                         )`),
                         'adsCount'
