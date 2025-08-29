@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import sequelize from '../config/db.js';
 import { Ad, Category, Location, Banner, Setting } from '../models/index.js';
 import paginate from '../utils/pagination.js';
 import injectBanners from '../utils/injectBanners.js';
