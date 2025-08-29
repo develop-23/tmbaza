@@ -71,7 +71,8 @@ export const list = async (req, res) => {
     const { page, limit, offset } = paginate(req.query);
     const { q, categoryId, locationId, vip } = req.query;
     const where = { status: 'approved' };
-    if (q) where.title = { [Op.iLike]: `%${q}%` };
+    const likeOp = sequelize.getDialect() === 'postgres' ? Op.iLike : Op.like;
+    if (q) where.title = { [likeOp]: `%${q}%` };
     if (categoryId) where.categoryId = categoryId;
     if (locationId) where.locationId = locationId;
     if (vip !== undefined) where.vip = vip === 'true';
