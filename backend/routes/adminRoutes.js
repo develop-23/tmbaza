@@ -39,6 +39,7 @@ r.get('/ads/recent', async (req, res) => {
             order: [['createdAt', 'DESC']],
             include: [{
                 model: User,
+                as: 'user',
                 attributes: ['name']
             }]
         });
@@ -110,8 +111,8 @@ r.get('/ads', async (req, res) => {
             offset: (parseInt(page) - 1) * parseInt(limit),
             order: [['createdAt', 'DESC']],
             include: [
-                { model: User, attributes: ['name'] },
-                { model: Category, attributes: ['name'] }
+                { model: User, as: 'user', attributes: ['name'] },
+                { model: Category, as: 'category', attributes: ['name'] }
             ]
         });
 
