@@ -39,6 +39,7 @@ r.get('/ads/recent', async (req, res) => {
             order: [['createdAt', 'DESC']],
             include: [{
                 model: User,
+                as: 'user',
                 attributes: ['name']
             }]
         });
@@ -55,7 +56,7 @@ r.get('/users/recent', async (req, res) => {
         const users = await User.findAll({
             limit: 5,
             order: [['createdAt', 'DESC']],
-            attributes: ['id', 'name', 'email', 'createdAt']
+            attributes: ['id', 'name', 'createdAt']
         });
         res.json(users);
     } catch (error) {
@@ -110,8 +111,8 @@ r.get('/ads', async (req, res) => {
             offset: (parseInt(page) - 1) * parseInt(limit),
             order: [['createdAt', 'DESC']],
             include: [
-                { model: User, attributes: ['name'] },
-                { model: Category, attributes: ['name'] }
+                { model: User, as: 'user', attributes: ['name'] },
+                { model: Category, as: 'category', attributes: ['name'] }
             ]
         });
 
@@ -190,7 +191,7 @@ r.get('/operators', async (req, res) => {
     try {
         const operators = await User.findAll({
             where: { role: ['admin', 'operator'] },
-            attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+            attributes: ['id', 'name', 'role', 'createdAt'],
             order: [['createdAt', 'DESC']]
         });
         res.json(operators);

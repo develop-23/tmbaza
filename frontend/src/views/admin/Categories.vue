@@ -27,7 +27,7 @@
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-slate-600">Всего категорий</p>
+            <p class="text-sm text-slate-600">Всего кат��горий</p>
             <p class="text-xl font-bold text-slate-900">{{ categories.length }}</p>
           </div>
         </div>
@@ -480,21 +480,15 @@ export default {
 
     const saveCategory = async () => {
       try {
-        const formData = new FormData()
-        Object.keys(categoryForm.value).forEach(key => {
-          formData.append(key, categoryForm.value[key])
-        })
+        const payload = { ...categoryForm.value }
+        if (payload.parentId === '') delete payload.parentId
 
         if (editingCategory.value) {
-          await api.put(`/admin/categories/${editingCategory.value.id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          })
+          await api.put(`/admin/categories/${editingCategory.value.id}`, payload)
         } else {
-          await api.post('/admin/categories', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          })
+          await api.post('/admin/categories', payload)
         }
-        
+
         showCreateModal.value = false
         editingCategory.value = null
         categoryForm.value = { name: '', parentId: '', sortOrder: 0, active: true }

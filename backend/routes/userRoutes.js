@@ -11,8 +11,8 @@ r.get('/me/ads', auth, async (req, res) => {
         const ads = await Ad.findAll({
             where: { userId: req.user.id },
             include: [
-                { model: Category, attributes: ['name'] },
-                { model: Location, attributes: ['name'] }
+                { model: Category, as: 'category', attributes: ['name'] },
+                { model: Location, as: 'location', attributes: ['name'] }
             ],
             order: [['createdAt', 'DESC']]
         });
