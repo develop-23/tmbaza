@@ -59,7 +59,7 @@ const PORT = process.env.PORT || 5000;
 (async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         await bootstrap(); // create first admin/settings if missing
         app.listen(PORT, () => console.log(`API running on :${PORT}`));
     } catch (e) {
