@@ -185,7 +185,7 @@
         </div>
 
         <!-- System Section -->
-        <div class="pt-4" v-if="isAdmin">
+        <div class="pt-4" v-if="isAdmin || isOperator">
           <div class="px-3 mb-3">
             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Система</p>
           </div>
@@ -250,6 +250,7 @@ export default {
     });
 
     const isAdmin = computed(() => authStore.isAdmin);
+    const isOperator = computed(() => authStore.isOperator);
 
     const openSidebar = () => {
       sidebarOpen.value = true;
@@ -261,6 +262,7 @@ export default {
 
     return {
       isAdmin,
+      isOperator,
       sidebarOpen,
       openSidebar,
       closeSidebar,
