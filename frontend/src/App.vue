@@ -1,72 +1,151 @@
 <template>
-  <div id="app" class="min-h-screen dark-bg dark-text">
-    <!-- Mobile Header (Primary Layout) -->
+  <div id="app" class="min-h-screen dark-bg">
+    <!-- Enhanced Mobile Header -->
     <header v-if="!isAdminRoute" class="mobile-header">
       <div class="header-icon" @click="toggleMenu">
         <i class="fas fa-bars"></i>
       </div>
       <h3>{{ getPageTitle() }}</h3>
-      <div class="header-icon" @click="$router.push('/profile')" v-if="user">
-        <i class="fas fa-user"></i>
+      <div class="header-icon" @click="handleHeaderAction()" v-if="user">
+        <div class="relative">
+          <i class="fas fa-user"></i>
+          <!-- Online indicator -->
+          <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800 animate-pulse"></div>
+        </div>
       </div>
-      <div class="header-icon" v-else></div>
+      <div class="header-icon" @click="$router.push('/login')" v-else>
+        <i class="fas fa-sign-in-alt"></i>
+      </div>
     </header>
 
-    <!-- Side Menu -->
-    <div v-if="!isAdminRoute" class="menu-container" :class="{ open: menuOpen }" @click.self="closeMenu">
-      <div class="bg-[#1c1c1c] h-full">
-        <router-link to="/" class="menu-item" :class="{ active: $route.path === '/' }" @click="closeMenu">
-          <i class="fas fa-home"></i>
-          Главная
-        </router-link>
-        
-        <router-link to="/ads" class="menu-item" :class="{ active: $route.path.startsWith('/ads') }" @click="closeMenu">
-          <i class="fas fa-list"></i>
-          Все объявления
-        </router-link>
-        
-        <router-link to="/categories" class="menu-item" :class="{ active: $route.path.startsWith('/categories') }" @click="closeMenu">
-          <i class="fas fa-tags"></i>
-          Категории
-        </router-link>
-        
-        <router-link
-          v-if="user"
-          to="/my-ads"
-          class="menu-item"
-          :class="{ active: $route.path.startsWith('/my-ads') }"
-          @click="closeMenu"
-        >
-          <i class="fas fa-user"></i>
-          Мои объявления
-        </router-link>
-        
-        <router-link
-          v-if="user"
-          to="/create-ad"
-          class="menu-item"
-          :class="{ active: $route.path.startsWith('/create-ad') }"
-          @click="closeMenu"
-        >
-          <i class="fas fa-plus-circle"></i>
-          Подать объявление
-        </router-link>
-        
-        <div class="menu-item" @click="handleAuth">
-          <i :class="user ? 'fas fa-sign-out-alt' : 'fas fa-sign-in-alt'"></i>
-          <span>{{ user ? 'Выйти' : 'Войти' }}</span>
+    <!-- Enhanced Side Menu -->
+    <div v-if="!isAdminRoute" class="menu-container custom-scrollbar" :class="{ open: menuOpen }" @click.self="closeMenu">
+      <div class="h-full">
+        <!-- Menu Header -->
+        <div class="p-6 border-b border-gray-700">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white">TürkmenBazar</h3>
+              <p class="text-sm text-gray-400">Ваш маркетплейс</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Section (if logged in) -->
+        <div v-if="user" class="p-4 border-b border-gray-700 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+              {{ (user?.name || 'U').charAt(0).toUpperCase() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-white truncate">{{ user?.name || 'Пользователь' }}</p>
+              <p class="text-xs text-gray-400 truncate">{{ user?.phone || 'Телефон не указан' }}</p>
+            </div>
+            <div v-if="user?.verified" class="text-blue-400">
+              <i class="fas fa-check-circle text-sm"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="py-2">
+          <router-link to="/" class="menu-item" :class="{ active: $route.path === '/' }" @click="closeMenu">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link to="/ads" class="menu-item" :class="{ active: $route.path.startsWith('/ads') }" @click="closeMenu">
+            <i class="fas fa-list"></i>
+            <span>Все объявления</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link to="/categories" class="menu-item" :class="{ active: $route.path.startsWith('/categories') }" @click="closeMenu">
+            <i class="fas fa-tags"></i>
+            <span>Категории</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link
+            v-if="user"
+            to="/my-ads"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/my-ads') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-user"></i>
+            <span>Мои объявления</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link
+            v-if="user"
+            to="/create-ad"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/create-ad') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-plus-circle"></i>
+            <span>Подать объявление</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+
+          <router-link
+            v-if="user"
+            to="/profile"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/profile') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-user-circle"></i>
+            <span>Мой профиль</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="mt-auto">
+          <!-- Auth Section -->
+          <div class="p-4 border-t border-gray-700">
+            <div class="menu-item" @click="handleAuth">
+              <i :class="user ? 'fas fa-sign-out-alt text-red-400' : 'fas fa-sign-in-alt text-green-400'"></i>
+              <span>{{ user ? 'Выйти' : 'Войти' }}</span>
+              <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+            </div>
+          </div>
+
+          <!-- App Info -->
+          <div class="p-4 bg-gradient-to-r from-gray-800 to-gray-900">
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1">TürkmenBazar v1.0</p>
+              <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <span class="flex items-center">
+                  <i class="fas fa-shield-check mr-1"></i>
+                  Безопасно
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-bolt mr-1"></i>
+                  Быстро
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Menu Overlay -->
+    <!-- Enhanced Menu Overlay -->
     <div
       v-if="menuOpen && !isAdminRoute"
-      class="fixed inset-0 bg-black/50 z-40"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
       @click="closeMenu"
     ></div>
 
-    <!-- Admin Layout -->
+    <!-- Admin Layout (unchanged) -->
     <div v-if="isAdminRoute && (isAdmin || isOperator)" class="flex h-screen bg-slate-50">
       <AdminSidebar />
 
@@ -121,13 +200,19 @@
       </div>
     </main>
 
-    <!-- Floating Action Button (Mobile Only) -->
+    <!-- Enhanced Floating Action Button -->
     <router-link
       v-if="!isAdminRoute && user && !$route.path.includes('/create-ad')"
       to="/create-ad"
-      class="fixed bottom-6 right-4 w-14 h-14 bg-[#2e6096] hover:bg-[#2a5489] text-white rounded-full shadow-lg flex items-center justify-center z-30 transition-all duration-300"
+      class="fab"
     >
-      <i class="fas fa-plus text-lg"></i>
+      <i class="fas fa-plus"></i>
+      
+      <!-- Ripple Effect -->
+      <div class="absolute inset-0 rounded-full bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+      
+      <!-- Pulse Animation -->
+      <div class="absolute inset-0 rounded-full bg-blue-400/30 animate-ping"></div>
     </router-link>
   </div>
 </template>
@@ -165,15 +250,22 @@ export default {
 
     const getPageTitle = () => {
       const path = route.path;
-      if (path === '/') return 'Главная';
-      if (path.startsWith('/ads')) return 'Объявления';
-      if (path.startsWith('/categories')) return 'Категории';
-      if (path.startsWith('/my-ads')) return 'Мои объявления';
-      if (path.startsWith('/create-ad')) return 'Подать объявление';
-      if (path.startsWith('/edit-ad')) return 'Редактировать';
-      if (path.startsWith('/profile')) return 'Мой профиль';
-      if (path.startsWith('/login')) return 'Вход';
-      return 'TürkmənBazar';
+      if (path === '/') return '🏠 Главная';
+      if (path.startsWith('/ads')) return '📋 Объявления';
+      if (path.startsWith('/categories')) return '🏷️ Категории';
+      if (path.startsWith('/my-ads')) return '📝 Мои объявления';
+      if (path.startsWith('/create-ad')) return '➕ Подать объявление';
+      if (path.startsWith('/edit-ad')) return '✏️ Редактировать';
+      if (path.startsWith('/profile')) return '👤 Мой профиль';
+      if (path.startsWith('/login')) return '🔐 Вход';
+      return 'TürkmenBazar';
+    };
+
+    const handleHeaderAction = () => {
+      if (user.value) {
+        router.push("/profile");
+      }
+      closeMenu();
     };
 
     const handleAuth = () => {
@@ -204,6 +296,7 @@ export default {
       toggleMenu,
       closeMenu,
       getPageTitle,
+      handleHeaderAction,
       handleAuth,
       logout,
     };
@@ -212,39 +305,101 @@ export default {
 </script>
 
 <style scoped>
-/* Overlay for mobile menu */
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 40;
-}
-
-/* Menu animation */
+/* Enhanced Menu Animations */
 .menu-container {
   transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-container.open {
   transform: translateX(0);
 }
 
-/* Header styling */
+/* Enhanced Header Styling */
 .mobile-header {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-/* FAB styling */
-.fixed.bottom-6.right-4 {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+/* Enhanced FAB */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #2e6096 0%, #4a90e2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 8px 24px rgba(46, 96, 150, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
 }
 
-.fixed.bottom-6.right-4:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+.fab:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 12px 32px rgba(46, 96, 150, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #4a90e2 0%, #2e6096 100%);
+}
+
+.fab:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Menu item hover effects */
+.menu-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(46, 96, 150, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.menu-item:hover::before {
+  left: 100%;
+}
+
+/* Smooth transitions for all interactive elements */
+.header-icon,
+.menu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced scrollbar for menu */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #2e6096 0%, #4a90e2 100%);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #4a90e2 0%, #2e6096 100%);
 }
 </style>
