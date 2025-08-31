@@ -6,15 +6,19 @@
         <i class="fas fa-bars"></i>
       </div>
       <h3>{{ getPageTitle() }}</h3>
-      <div class="header-icon" @click="handleHeaderAction()" v-if="user">
+      
+      <!-- Conditional header action based on page and user status -->
+      <div class="header-icon" @click="handleHeaderAction()" v-if="showHeaderAction()">
         <div class="relative">
-          <i class="fas fa-user"></i>
-          <!-- Online indicator -->
-          <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800 animate-pulse"></div>
+          <i :class="getHeaderIcon()"></i>
+          <!-- Online indicator for logged in users -->
+          <div v-if="user" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800 animate-pulse"></div>
         </div>
       </div>
-      <div class="header-icon" @click="$router.push('/login')" v-else>
-        <i class="fas fa-sign-in-alt"></i>
+      
+      <!-- Empty space to maintain header balance when no action needed -->
+      <div v-else class="header-icon opacity-0 pointer-events-none">
+        <i class="fas fa-user"></i>
       </div>
     </header>
 
@@ -47,6 +51,17 @@
             <div v-if="user?.verified" class="text-blue-400">
               <i class="fas fa-check-circle text-sm"></i>
             </div>
+          </div>
+        </div>
+
+        <!-- Guest Welcome Section (if not logged in) -->
+        <div v-else class="p-4 border-b border-gray-700 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+          <div class="text-center">
+            <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
+              <i class="fas fa-user text-white text-xl"></i>
+            </div>
+            <p class="text-sm font-semibold text-white">Добро пожаловать!</p>
+            <p class="text-xs text-gray-400">Войдите, чтобы создавать объявления</p>
           </div>
         </div>
 
@@ -251,7 +266,7 @@ export default {
     const getPageTitle = () => {
       const path = route.path;
       if (path === '/') return '🏠 Главная';
-      if (path.startsWith('/ads')) return '📋 Объявления';
+      if (path.startsWith('/ads') && !path.includes('/my-ads')) return '📋 Объявления';
       if (path.startsWith('/categories')) return '🏷️ Категории';
       if (path.startsWith('/my-ads')) return '📝 Мои объявления';
       if (path.startsWith('/create-ad')) return '➕ Подать объявление';
@@ -261,9 +276,29 @@ export default {
       return 'TürkmenBazar';
     };
 
+    // Determine if header action should be shown
+    const showHeaderAction = () => {
+      const path = route.path;
+      // Don't show login button on homepage
+      if (path === '/') return false;
+      // Show user icon for logged in users on other pages
+      if (user.value) return true;
+      // Show login icon for guests on non-home pages
+      return path !== '/';
+    };
+
+    const getHeaderIcon = () => {
+      if (user.value) {
+        return 'fas fa-user';
+      }
+      return 'fas fa-sign-in-alt';
+    };
+
     const handleHeaderAction = () => {
       if (user.value) {
         router.push("/profile");
+      } else {
+        router.push("/login");
       }
       closeMenu();
     };
@@ -296,6 +331,8 @@ export default {
       toggleMenu,
       closeMenu,
       getPageTitle,
+      showHeaderAction,
+      getHeaderIcon,
       handleHeaderAction,
       handleAuth,
       logout,
