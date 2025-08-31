@@ -1,303 +1,229 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-    <!-- Enhanced Search & Filters Header -->
-    <div class="sticky top-16 lg:top-20 z-30 bg-white/95 backdrop-blur-lg border-b border-slate-200/60 shadow-sm">
-      <div class="p-4 lg:p-6 space-y-4 lg:space-y-6">
-        <!-- Main Search -->
-        <div class="relative group max-w-4xl mx-auto">
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl lg:rounded-3xl blur opacity-10 group-hover:opacity-20 transition-opacity"></div>
-          <div class="relative bg-white rounded-2xl lg:rounded-3xl shadow-lg border border-slate-200/50 p-1 lg:p-2">
-            <div class="flex items-center">
-              <div class="flex-1 relative">
-                <input
-                  v-model="searchQuery"
-                  @keyup.enter="search"
-                  @input="debouncedSearch"
-                  type="text"
-                  placeholder="Поиск объявлений..."
-                  class="w-full pl-12 lg:pl-16 pr-4 py-3 lg:py-4 bg-transparent text-slate-900 placeholder-slate-500 focus:outline-none font-medium text-lg lg:text-xl"
-                />
-                <div class="absolute left-4 lg:left-6 top-1/2 transform -translate-y-1/2 text-slate-400">
-                  <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
-              <button 
-                @click="search"
-                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2.5 lg:p-3 rounded-xl lg:rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 mr-1"
-              >
-                <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Filter Pills -->
-        <div class="flex flex-wrap lg:justify-center space-x-2 lg:space-x-4 overflow-x-auto pb-2">
-          <!-- Category Filter -->
-          <div class="relative flex-shrink-0">
-            <select
-              v-model="filters.categoryId"
-              @change="search"
-              class="appearance-none bg-white border border-slate-200 rounded-xl lg:rounded-2xl px-4 lg:px-6 py-2 lg:py-3 pr-8 lg:pr-10 text-sm lg:text-base font-medium text-slate-700 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            >
-              <option value="">Все категории</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
-            <div class="absolute right-2 lg:right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg class="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Location Filter -->
-          <div class="relative flex-shrink-0">
-            <select
-              v-model="filters.locationId"
-              @change="search"
-              class="appearance-none bg-white border border-slate-200 rounded-xl lg:rounded-2xl px-4 lg:px-6 py-2 lg:py-3 pr-8 lg:pr-10 text-sm lg:text-base font-medium text-slate-700 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            >
-              <option value="">Все места</option>
-              <option v-for="loc in locations" :key="loc.id" :value="loc.id">
-                {{ loc.name }}
-              </option>
-            </select>
-            <div class="absolute right-2 lg:right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg class="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- VIP Filter -->
-          <button
-            @click="toggleVipFilter"
-            class="flex-shrink-0 px-4 lg:px-6 py-2 lg:py-3 rounded-xl lg:rounded-2xl text-sm lg:text-base font-medium border transition-all duration-200 hover:scale-105"
-            :class="filters.vip 
-              ? 'bg-gradient-to-r from-yellow-400 to-amber-400 text-amber-900 border-amber-300 shadow-lg' 
-              : 'bg-white text-slate-700 border-slate-200 hover:border-yellow-300'"
-          >
-            <span class="flex items-center">
-              <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              VIP
-            </span>
-          </button>
-
-          <!-- Clear Filters -->
-          <button
-            v-if="hasActiveFilters"
-            @click="clearFilters"
-            class="flex-shrink-0 px-3 lg:px-4 py-2 lg:py-3 text-slate-500 hover:text-slate-700 text-sm lg:text-base transition-colors"
-          >
-            <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Active Filters Display -->
-        <div v-if="hasActiveFilters" class="flex flex-wrap gap-2 lg:justify-center">
-          <span v-if="searchQuery" class="inline-flex items-center px-3 py-1 rounded-full text-xs lg:text-sm font-medium bg-blue-100 text-blue-800">
-            "{{ searchQuery }}"
-            <button @click="searchQuery = ''; search()" class="ml-1 hover:text-blue-600">
-              <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </span>
-          
-          <span v-if="filters.categoryId" class="inline-flex items-center px-3 py-1 rounded-full text-xs lg:text-sm font-medium bg-green-100 text-green-800">
-            {{ getCategoryName(filters.categoryId) }}
-            <button @click="filters.categoryId = ''; search()" class="ml-1 hover:text-green-600">
-              <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </span>
-          
-          <span v-if="filters.locationId" class="inline-flex items-center px-3 py-1 rounded-full text-xs lg:text-sm font-medium bg-purple-100 text-purple-800">
-            {{ getLocationName(filters.locationId) }}
-            <button @click="filters.locationId = ''; search()" class="ml-1 hover:text-purple-600">
-              <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </span>
-          
-          <span v-if="filters.vip" class="inline-flex items-center px-3 py-1 rounded-full text-xs lg:text-sm font-medium bg-yellow-100 text-yellow-800">
-            VIP только
-            <button @click="toggleVipFilter()" class="ml-1 hover:text-yellow-600">
-              <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Results Summary -->
-    <div v-if="!loading && ads.length > 0" class="px-4 lg:px-6 py-3 text-sm lg:text-base text-slate-600 max-w-7xl mx-auto">
-      Найдено <span class="font-semibold text-slate-900">{{ totalCount }}</span> объявлений
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-12 lg:py-16">
-      <div class="relative">
-        <div class="w-12 h-12 lg:w-16 lg:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-        <div class="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-ping"></div>
-      </div>
-    </div>
-
-    <!-- Ads Grid -->
-    <div v-else-if="ads.length > 0" class="px-4 lg:px-6 pb-4 lg:pb-8 max-w-7xl mx-auto">
-      <!-- Desktop Grid Layout -->
-      <div class="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        <template v-for="(item, index) in ads" :key="item.id || `banner-${index}`">
-          <!-- Regular Ad -->
-          <div 
-            v-if="!item.__banner"
-            class="animate-fade-in-up"
-            :style="{ animationDelay: `${index * 50}ms` }"
-          >
-            <AdCard
-              :ad="item"
-              @click="$router.push(`/ads/${item.id}`)"
-            />
-          </div>
-
-          <!-- Banner Ad -->
-          <div
-            v-else
-            @click="handleBannerClick(item.banner)"
-            class="relative cursor-pointer group overflow-hidden rounded-2xl lg:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up col-span-2"
-            :style="{ animationDelay: `${index * 50}ms` }"
-          >
-            <img
-              :src="item.banner.image"
-              :alt="item.banner.title"
-              class="w-full h-32 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
-              Реклама
-            </div>
-          </div>
-        </template>
-      </div>
-      
-      <!-- Mobile List Layout -->
-      <div class="lg:hidden space-y-3">
-        <template v-for="(item, index) in ads" :key="item.id || `banner-${index}`">
-          <!-- Regular Ad -->
-          <div 
-            v-if="!item.__banner"
-            class="animate-fade-in-up"
-            :style="{ animationDelay: `${index * 50}ms` }"
-          >
-            <AdCard
-              :ad="item"
-              @click="$router.push(`/ads/${item.id}`)"
-            />
-          </div>
-
-          <!-- Banner Ad -->
-          <div
-            v-else
-            @click="handleBannerClick(item.banner)"
-            class="relative cursor-pointer group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up"
-            :style="{ animationDelay: `${index * 50}ms` }"
-          >
-            <img
-              :src="item.banner.image"
-              :alt="item.banner.title"
-              class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
-              Реклама
-            </div>
-          </div>
-        </template>
-      </div>
-    </div>
-
-    <!-- No Results -->
-    <div v-else class="text-center py-12 lg:py-16 px-4 lg:px-6">
-      <div class="w-20 h-20 lg:w-32 lg:h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6">
-        <svg class="w-10 h-10 lg:w-16 lg:h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.175-5.5-3M7 13a4.978 4.978 0 00-1 3c0 .6.1 1.2.3 1.8a9 9 0 006.4 6.4c.6.2 1.2.3 1.8.3 1 0 2-.2 3-1" />
-        </svg>
-      </div>
-      <h3 class="text-lg lg:text-xl font-semibold text-slate-900 mb-2">Объявления не найдены</h3>
-      <p class="text-slate-500 mb-6 lg:text-lg">Попробуйте изменить параметры поиска или создайте собственное объявление</p>
-      
-      <div class="space-y-3 lg:space-x-4 lg:space-y-0 lg:flex lg:justify-center">
-        <button @click="clearFilters" class="btn-secondary w-full lg:w-auto">
-          Сбросить фильтры
-        </button>
-        <router-link 
-          v-if="user"
-          to="/create-ad" 
-          class="btn-primary block lg:inline-block"
+  <div class="min-h-screen dark-bg">
+    <!-- Enhanced Tab Navigation -->
+    <nav class="tabs">
+      <ul class="flex">
+        <li 
+          class="tab"
+          :class="{ active: !filters.vip }"
+          @click="setTabFilter(false)"
         >
-          Создать объявление
-        </router-link>
+          <i class="fas fa-list mr-2"></i>
+          Все
+        </li>
+        <li 
+          class="tab"
+          :class="{ active: filters.vip }"
+          @click="setTabFilter(true)"
+        >
+          <i class="fas fa-crown mr-2"></i>
+          VIP
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Enhanced Search Container -->
+    <div class="search-container">
+      <div class="flex items-center">
+        <input
+          v-model="searchQuery"
+          @keyup.enter="search"
+          @input="debouncedSearch"
+          type="text"
+          placeholder="🔍 Поиск по объявлениям..."
+          class="search-input"
+        />
+        <button @click="search" class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="px-4 lg:px-6 py-6 lg:py-8">
-      <div class="flex items-center justify-center space-x-2 lg:space-x-4">
+    <!-- Enhanced Filters Container -->
+    <div class="filter-container">
+      <select
+        v-model="filters.locationId"
+        @change="search"
+        class="filter-select"
+      >
+        <option value="">📍 Все местоположения</option>
+        <option v-for="loc in locations" :key="loc.id" :value="loc.id">
+          {{ loc.name }}
+        </option>
+      </select>
+
+      <select
+        v-model="filters.categoryId"
+        @change="search"
+        class="filter-select"
+      >
+        <option value="">🏷️ Все категории</option>
+        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+          {{ cat.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Loading State with Beautiful Animation -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-16">
+      <div class="relative">
+        <div class="loader"></div>
+        <div class="absolute inset-0 animate-ping">
+          <div class="w-8 h-8 border-2 border-blue-400 rounded-full opacity-30"></div>
+        </div>
+      </div>
+      <p class="mt-4 text-gray-400 animate-pulse">Загружаем объявления...</p>
+    </div>
+
+    <!-- Ads Container with Staggered Animation -->
+    <div v-else-if="ads.length > 0" id="adsContainer" class="animate-fade-in">
+      <template v-for="(item, index) in ads" :key="item.id || `banner-${index}`">
+        <!-- Regular Ad -->
+        <div 
+          v-if="!item.__banner"
+          class="animate-slide-up"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <AdCard
+            :ad="item"
+            @click="$router.push(`/ads/${item.id}`)"
+          />
+        </div>
+
+        <!-- Enhanced Banner Ad -->
+        <div
+          v-else
+          @click="handleBannerClick(item.banner)"
+          class="ad-banner cursor-pointer m-4 rounded-2xl overflow-hidden relative group"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <!-- Banner Background -->
+          <div class="absolute inset-0 bg-gradient-to-r from-purple-900/20 to-blue-900/20"></div>
+          
+          <!-- Banner Content -->
+          <div class="relative p-6 text-center">
+            <div class="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full mb-3 animate-bounce">
+              📢 РЕКЛАМА
+            </div>
+            <img
+              :src="item.banner.image"
+              :alt="item.banner.title"
+              class="w-full h-24 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Enhanced Empty State -->
+    <div v-else class="empty-state">
+      <!-- Animated Background Elements -->
+      <div class="absolute top-4 left-4 w-12 h-12 bg-blue-500/10 rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+      <div class="absolute top-8 right-8 w-8 h-8 bg-green-500/10 rounded-full animate-bounce" style="animation-delay: 0.5s;"></div>
+      <div class="absolute bottom-8 left-12 w-6 h-6 bg-purple-500/10 rounded-full animate-bounce" style="animation-delay: 1s;"></div>
+      
+      <!-- Main Icon -->
+      <div class="relative mb-6">
+        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center border-2 border-dashed border-gray-600 animate-pulse">
+          <i class="fas fa-search text-4xl text-gray-500"></i>
+        </div>
+        <!-- Floating dots around icon -->
+        <div class="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
+        <div class="absolute -bottom-2 -left-2 w-3 h-3 bg-green-500 rounded-full animate-ping" style="animation-delay: 0.5s;"></div>
+      </div>
+
+      <!-- Enhanced Message -->
+      <div class="space-y-4">
+        <h3 class="text-2xl font-bold text-gray-300 mb-2">
+          🤔 Ничего не найдено
+        </h3>
+        <p class="text-gray-400 text-lg leading-relaxed max-w-md mx-auto">
+          К сожалению, нет объявлений, соответствующих вашему запросу
+        </p>
+        
+        <!-- Search suggestions -->
+        <div class="mt-6 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl border border-gray-700">
+          <p class="text-sm text-gray-400 mb-2">💡 Попробуйте:</p>
+          <ul class="text-sm text-gray-300 space-y-1">
+            <li>• Изменит�� параметры поиска</li>
+            <li>• Проверить фильтры</li>
+            <li>• Попробовать другие ключевые слова</li>
+          </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col items-center space-y-3 mt-8">
+          <button 
+            @click="clearFiltersAndSearch"
+            class="btn-primary flex items-center px-6 py-3"
+          >
+            <i class="fas fa-refresh mr-2"></i>
+            Сбросить фильтры
+          </button>
+          
+          <router-link 
+            v-if="user"
+            to="/create-ad" 
+            class="btn-secondary flex items-center px-6 py-3"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            Создать объявление
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Decorative elements -->
+      <div class="absolute bottom-4 right-4 text-6xl opacity-5 animate-pulse">
+        🏪
+      </div>
+    </div>
+
+    <!-- Enhanced Pagination -->
+    <div v-if="totalPages > 1" class="px-4 py-8">
+      <div class="flex items-center justify-center space-x-2">
         <button
           @click="changePage(currentPage - 1)"
           :disabled="currentPage === 1"
-          class="flex items-center px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base font-medium text-slate-700 bg-white border border-slate-300 rounded-xl lg:rounded-2xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+          class="btn-secondary text-sm py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
+          <i class="fas fa-chevron-left mr-2"></i>
           Назад
         </button>
 
-        <div class="flex space-x-1 lg:space-x-2">
+        <div class="flex space-x-1">
           <template v-for="page in visiblePages" :key="page">
             <button
               v-if="page !== '...'"
               @click="changePage(page)"
-              class="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base font-medium rounded-xl lg:rounded-2xl transition-all hover:scale-105"
+              class="px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300"
               :class="page === currentPage 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' 
-                : 'text-slate-700 bg-white hover:bg-slate-50 border border-slate-300'"
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
+                : 'text-gray-300 bg-gray-800 hover:bg-gray-700 border border-gray-600'"
             >
               {{ page }}
             </button>
-            <span v-else class="px-3 lg:px-4 py-2 lg:py-3 text-slate-400">...</span>
+            <span v-else class="px-4 py-3 text-gray-500 flex items-center">
+              <i class="fas fa-ellipsis-h"></i>
+            </span>
           </template>
         </div>
 
         <button
           @click="changePage(currentPage + 1)"
           :disabled="currentPage === totalPages"
-          class="flex items-center px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base font-medium text-slate-700 bg-white border border-slate-300 rounded-xl lg:rounded-2xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+          class="btn-secondary text-sm py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           Далее
-          <svg class="w-4 h-4 lg:w-5 lg:h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+          <i class="fas fa-chevron-right ml-2"></i>
         </button>
       </div>
 
-      <div class="text-center mt-3 lg:mt-4 text-sm lg:text-base text-slate-500">
-        Страница {{ currentPage }} из {{ totalPages }}
+      <div class="text-center mt-4 text-sm text-gray-400">
+        <span class="inline-flex items-center px-3 py-1 bg-gray-800 rounded-full">
+          <i class="fas fa-list mr-2"></i>
+          Страница {{ currentPage }} из {{ totalPages }}
+        </span>
       </div>
     </div>
   </div>
@@ -338,10 +264,6 @@ export default {
     });
 
     // Computed properties
-    const hasActiveFilters = computed(() => {
-      return searchQuery.value || filters.value.categoryId || filters.value.locationId || filters.value.vip;
-    });
-
     const visiblePages = computed(() => {
       const pages = [];
       const total = totalPages.value;
@@ -375,17 +297,6 @@ export default {
       return pages;
     });
 
-    // Helper functions
-    const getCategoryName = (id) => {
-      const category = categories.value.find(cat => cat.id.toString() === id.toString());
-      return category ? category.name : '';
-    };
-
-    const getLocationName = (id) => {
-      const location = locations.value.find(loc => loc.id.toString() === id.toString());
-      return location ? location.name : '';
-    };
-
     // Debounced search
     let searchTimeout;
     const debouncedSearch = () => {
@@ -411,12 +322,12 @@ export default {
 
         const response = await api.get("/ads", { params });
 
-        ads.value = response.data.data;
-        totalPages.value = Math.ceil(response.data.count / 20);
-        totalCount.value = response.data.count;
+        ads.value = response.data.data || [];
+        totalPages.value = Math.ceil((response.data.count || 0) / 20);
+        totalCount.value = response.data.count || 0;
       } catch (error) {
         console.error("Failed to load ads:", error);
-        // No toast notification for data loading failures
+        ads.value = [];
       } finally {
         loading.value = false;
       }
@@ -429,15 +340,16 @@ export default {
           api.get("/locations"),
         ]);
 
-        categories.value = categoriesRes.data.filter(
+        categories.value = categoriesRes.data?.filter(
           (cat) => cat.active && !cat.parentId
-        );
-        locations.value = locationsRes.data.filter(
+        ) || [];
+        locations.value = locationsRes.data?.filter(
           (loc) => loc.active && !loc.parentId
-        );
+        ) || [];
       } catch (error) {
         console.error("Failed to load filters:", error);
-        // No toast notification for filter loading failures
+        categories.value = [];
+        locations.value = [];
       }
     };
 
@@ -447,12 +359,12 @@ export default {
       loadAds();
     };
 
-    const toggleVipFilter = () => {
-      filters.value.vip = !filters.value.vip;
+    const setTabFilter = (isVip) => {
+      filters.value.vip = isVip;
       search();
     };
 
-    const clearFilters = () => {
+    const clearFiltersAndSearch = () => {
       searchQuery.value = '';
       filters.value.categoryId = '';
       filters.value.locationId = '';
@@ -465,7 +377,7 @@ export default {
         currentPage.value = page;
         updateURL();
         loadAds();
-        // Scroll to top
+        // Scroll to top with smooth animation
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
@@ -484,12 +396,11 @@ export default {
     const handleBannerClick = async (banner) => {
       try {
         await api.post(`/banners/${banner.id}/click`);
-        if (banner.link) {
+        if (banner.link && banner.link !== '#') {
           window.open(banner.link, "_blank");
         }
       } catch (error) {
         console.error("Failed to track banner click:", error);
-        // No toast notification for banner click failures
       }
     };
 
@@ -522,14 +433,11 @@ export default {
       currentPage,
       totalPages,
       totalCount,
-      hasActiveFilters,
       visiblePages,
-      getCategoryName,
-      getLocationName,
       debouncedSearch,
       search,
-      toggleVipFilter,
-      clearFilters,
+      setTabFilter,
+      clearFiltersAndSearch,
       changePage,
       handleBannerClick,
     };
@@ -538,10 +446,11 @@ export default {
 </script>
 
 <style scoped>
-@keyframes fadeInUp {
+/* Additional component-specific animations */
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -549,8 +458,14 @@ export default {
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-  opacity: 0;
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
 }
+
+/* Stagger children animations */
+.animate-slide-up:nth-child(1) { animation-delay: 0.1s; }
+.animate-slide-up:nth-child(2) { animation-delay: 0.2s; }
+.animate-slide-up:nth-child(3) { animation-delay: 0.3s; }
+.animate-slide-up:nth-child(4) { animation-delay: 0.4s; }
+.animate-slide-up:nth-child(5) { animation-delay: 0.5s; }
 </style>

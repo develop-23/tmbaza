@@ -1,168 +1,166 @@
 <template>
-  <div id="app" class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-    <!-- Desktop Header -->
-    <header
-      v-if="!isAdminRoute"
-      class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200/60 shadow-sm"
-    >
-      <!-- Desktop Navigation -->
-      <div class="hidden lg:block">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-          <div class="flex items-center justify-between">
-            <!-- Logo -->
-            <router-link 
-              to="/" 
-              class="flex items-center space-x-3 group"
-            >
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <span class="text-white font-bold text-lg">T</span>
-              </div>
-              <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Türkmenbazar
-              </span>
-            </router-link>
-            
-            <!-- Desktop Navigation Links -->
-            <nav class="flex items-center space-x-8">
-              <router-link
-                to="/"
-                class="nav-link"
-                :class="$route.path === '/' ? 'nav-link-active' : 'nav-link-inactive'"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Главная
-              </router-link>
-              
-              <router-link
-                to="/ads"
-                class="nav-link"
-                :class="$route.path.startsWith('/ads') ? 'nav-link-active' : 'nav-link-inactive'"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Объявления
-              </router-link>
-              
-              <router-link
-                to="/categories"
-                class="nav-link"
-                :class="$route.path.startsWith('/categories') ? 'nav-link-active' : 'nav-link-inactive'"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                Категории
-              </router-link>
-              
-              <router-link
-                v-if="user"
-                to="/my-ads"
-                class="nav-link"
-                :class="$route.path.startsWith('/my-ads') ? 'nav-link-active' : 'nav-link-inactive'"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Мои объявления
-              </router-link>
-            </nav>
-            
-            <!-- Desktop User Actions -->
-            <div class="flex items-center space-x-4">
-              <router-link
-                v-if="user"
-                to="/create-ad"
-                class="btn-primary flex items-center"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Создать объявление
-              </router-link>
-              
-              <div v-if="user" class="flex items-center space-x-3">
-                <router-link
-                  to="/profile"
-                  class="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                    <span class="text-white font-semibold text-sm">
-                      {{ (user?.name || 'U').charAt(0).toUpperCase() }}
-                    </span>
-                  </div>
-                  <span class="text-sm font-medium text-slate-700">{{ user?.name || 'Пользователь' }}</span>
-                </router-link>
-              </div>
-              
-              <router-link
-                v-if="!user"
-                to="/login"
-                class="btn-primary"
-              >
-                Войти
-              </router-link>
-            </div>
-          </div>
+  <div id="app" class="min-h-screen dark-bg">
+    <!-- Enhanced Mobile Header -->
+    <header v-if="!isAdminRoute" class="mobile-header">
+      <div class="header-icon" @click="toggleMenu">
+        <i class="fas fa-bars"></i>
+      </div>
+      <h3>{{ getPageTitle() }}</h3>
+      
+      <!-- Conditional header action based on page and user status -->
+      <div class="header-icon" @click="handleHeaderAction()" v-if="showHeaderAction()">
+        <div class="relative">
+          <i :class="getHeaderIcon()"></i>
+          <!-- Online indicator for logged in users -->
+          <div v-if="user" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800 animate-pulse"></div>
         </div>
       </div>
       
-      <!-- Mobile Navigation -->
-      <div class="lg:hidden">
-        <div class="max-w-md mx-auto px-4 py-3">
-          <div class="flex items-center justify-between">
-            <router-link 
-              to="/" 
-              class="flex items-center space-x-2 group"
-            >
-              <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <span class="text-white font-bold text-sm">T</span>
+      <!-- Empty space to maintain header balance when no action needed -->
+      <div v-else class="header-icon opacity-0 pointer-events-none">
+        <i class="fas fa-user"></i>
+      </div>
+    </header>
+
+    <!-- Enhanced Side Menu -->
+    <div v-if="!isAdminRoute" class="menu-container custom-scrollbar" :class="{ open: menuOpen }" @click.self="closeMenu">
+      <div class="h-full">
+        <!-- Menu Header -->
+        <div class="p-6 border-b border-gray-700">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white">TürkmenBazar</h3>
+              <p class="text-sm text-gray-400">Ваш маркетплейс</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Section (if logged in) -->
+        <div v-if="user" class="p-4 border-b border-gray-700 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+              {{ (user?.name || 'U').charAt(0).toUpperCase() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-white truncate">{{ user?.name || 'Пользователь' }}</p>
+              <p class="text-xs text-gray-400 truncate">{{ user?.phone || 'Телефон не указан' }}</p>
+            </div>
+            <div v-if="user?.verified" class="text-blue-400">
+              <i class="fas fa-check-circle text-sm"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest Welcome Section (if not logged in) -->
+        <div v-else class="p-4 border-b border-gray-700 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+          <div class="text-center">
+            <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
+              <i class="fas fa-user text-white text-xl"></i>
+            </div>
+            <p class="text-sm font-semibold text-white">Добро пожаловать!</p>
+            <p class="text-xs text-gray-400">Войдите, чтобы создавать объявления</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="py-2">
+          <router-link to="/" class="menu-item" :class="{ active: $route.path === '/' }" @click="closeMenu">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link to="/ads" class="menu-item" :class="{ active: $route.path.startsWith('/ads') }" @click="closeMenu">
+            <i class="fas fa-list"></i>
+            <span>Все объявления</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link to="/categories" class="menu-item" :class="{ active: $route.path.startsWith('/categories') }" @click="closeMenu">
+            <i class="fas fa-tags"></i>
+            <span>Категории</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link
+            v-if="user"
+            to="/my-ads"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/my-ads') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-user"></i>
+            <span>Мои объявления</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+          
+          <router-link
+            v-if="user"
+            to="/create-ad"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/create-ad') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-plus-circle"></i>
+            <span>Подать объявление</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+
+          <router-link
+            v-if="user"
+            to="/profile"
+            class="menu-item"
+            :class="{ active: $route.path.startsWith('/profile') }"
+            @click="closeMenu"
+          >
+            <i class="fas fa-user-circle"></i>
+            <span>Мой профиль</span>
+            <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+          </router-link>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="mt-auto">
+          <!-- Auth Section -->
+          <div class="p-4 border-t border-gray-700">
+            <div class="menu-item" @click="handleAuth">
+              <i :class="user ? 'fas fa-sign-out-alt text-red-400' : 'fas fa-sign-in-alt text-green-400'"></i>
+              <span>{{ user ? 'Выйти' : 'Войти' }}</span>
+              <i class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
+            </div>
+          </div>
+
+          <!-- App Info -->
+          <div class="p-4 bg-gradient-to-r from-gray-800 to-gray-900">
+            <div class="text-center">
+              <p class="text-xs text-gray-400 mb-1">TürkmenBazar v1.0</p>
+              <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <span class="flex items-center">
+                  <i class="fas fa-shield-check mr-1"></i>
+                  Безопасно
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-bolt mr-1"></i>
+                  Быстро
+                </span>
               </div>
-              <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Türkmenbazar
-              </span>
-            </router-link>
-            
-            <div class="flex items-center space-x-2">
-              <router-link
-                to="/categories"
-                class="p-2.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-105"
-                title="Категории"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </router-link>
-              
-              <router-link
-                v-if="!user"
-                to="/login"
-                class="btn-primary text-sm py-2 px-4"
-              >
-                Войти
-              </router-link>
-              
-              <router-link
-                v-else
-                to="/profile"
-                class="p-2.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-105 relative"
-                title="Профиль"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <!-- Online indicator -->
-                <div class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-              </router-link>
             </div>
           </div>
         </div>
       </div>
-    </header>
+    </div>
 
-    <!-- Admin Layout -->
+    <!-- Enhanced Menu Overlay -->
+    <div
+      v-if="menuOpen && !isAdminRoute"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+      @click="closeMenu"
+    ></div>
+
+    <!-- Admin Layout (unchanged) -->
     <div v-if="isAdminRoute && (isAdmin || isOperator)" class="flex h-screen bg-slate-50">
       <AdminSidebar />
 
@@ -210,151 +208,32 @@
       </div>
     </div>
 
-    <!-- Main Content - Responsive Layout -->
+    <!-- Main Content (Mobile First) -->
     <main v-else class="w-full">
-      <!-- Desktop Layout -->
-      <div class="hidden lg:block">
-        <div class="max-w-7xl mx-auto px-6">
-          <router-view />
-        </div>
-      </div>
-      
-      <!-- Mobile Layout -->
-      <div class="lg:hidden">
-        <div class="max-w-md mx-auto min-h-screen pb-20">
-          <router-view />
-        </div>
+      <div class="min-h-screen">
+        <router-view />
       </div>
     </main>
 
-    <!-- Bottom Navigation (Mobile Only) -->
-    <nav
-      v-if="!isAdminRoute"
-      class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/60 z-50 lg:hidden"
-    >
-      <div class="max-w-md mx-auto">
-        <div class="flex">
-          <router-link
-            to="/"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden"
-            :class="$route.path === '/' ? 'text-blue-600' : 'text-slate-600'"
-          >
-            <div 
-              v-if="$route.path === '/'"
-              class="absolute inset-0 bg-gradient-to-t from-blue-50 to-transparent opacity-50"
-            ></div>
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span class="font-medium">Главная</span>
-            </div>
-          </router-link>
-          
-          <router-link
-            to="/ads"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden"
-            :class="$route.path.startsWith('/ads') ? 'text-blue-600' : 'text-slate-600'"
-          >
-            <div 
-              v-if="$route.path.startsWith('/ads')"
-              class="absolute inset-0 bg-gradient-to-t from-blue-50 to-transparent opacity-50"
-            ></div>
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <span class="font-medium">Объявления</span>
-            </div>
-          </router-link>
-          
-          <router-link
-            to="/categories"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden"
-            :class="$route.path.startsWith('/categories') ? 'text-blue-600' : 'text-slate-600'"
-          >
-            <div 
-              v-if="$route.path.startsWith('/categories')"
-              class="absolute inset-0 bg-gradient-to-t from-blue-50 to-transparent opacity-50"
-            ></div>
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-              <span class="font-medium">Категории</span>
-            </div>
-          </router-link>
-          
-          <router-link
-            v-if="user"
-            to="/my-ads"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden"
-            :class="$route.path.startsWith('/my-ads') ? 'text-blue-600' : 'text-slate-600'"
-          >
-            <div 
-              v-if="$route.path.startsWith('/my-ads')"
-              class="absolute inset-0 bg-gradient-to-t from-blue-50 to-transparent opacity-50"
-            ></div>
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span class="font-medium">Мои</span>
-            </div>
-          </router-link>
-          
-          <router-link
-            v-if="user"
-            to="/profile"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden"
-            :class="$route.path.startsWith('/profile') ? 'text-blue-600' : 'text-slate-600'"
-          >
-            <div 
-              v-if="$route.path.startsWith('/profile')"
-              class="absolute inset-0 bg-gradient-to-t from-blue-50 to-transparent opacity-50"
-            ></div>
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span class="font-medium">Профиль</span>
-            </div>
-          </router-link>
-          
-          <router-link
-            v-else
-            to="/login"
-            class="flex-1 py-3 px-2 flex flex-col items-center text-xs group relative overflow-hidden text-slate-600"
-          >
-            <div class="relative z-10 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-              </svg>
-              <span class="font-medium">Войти</span>
-            </div>
-          </router-link>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Floating Action Button (Mobile Only) -->
+    <!-- Enhanced Floating Action Button -->
     <router-link
       v-if="!isAdminRoute && user && !$route.path.includes('/create-ad')"
       to="/create-ad"
-      class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center z-40 hover:scale-110 transition-all duration-300 group lg:hidden"
+      class="fab"
     >
-      <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
+      <i class="fas fa-plus"></i>
       
-      <!-- Ripple effect -->
+      <!-- Ripple Effect -->
       <div class="absolute inset-0 rounded-full bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+      
+      <!-- Pulse Animation -->
+      <div class="absolute inset-0 rounded-full bg-blue-400/30 animate-ping"></div>
     </router-link>
   </div>
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "./store/auth";
 import AdminSidebar from "./components/AdminSidebar.vue";
@@ -368,24 +247,196 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const authStore = useAuthStore();
+    
+    const menuOpen = ref(false);
 
     const user = computed(() => authStore.user);
     const isAdmin = computed(() => authStore.isAdmin);
     const isOperator = computed(() => authStore.isOperator);
     const isAdminRoute = computed(() => route.path.startsWith("/admin"));
 
+    const toggleMenu = () => {
+      menuOpen.value = !menuOpen.value;
+    };
+
+    const closeMenu = () => {
+      menuOpen.value = false;
+    };
+
+    const getPageTitle = () => {
+      const path = route.path;
+      if (path === '/') return '🏠 Главная';
+      if (path.startsWith('/ads') && !path.includes('/my-ads')) return '📋 Объявления';
+      if (path.startsWith('/categories')) return '🏷️ Категории';
+      if (path.startsWith('/my-ads')) return '📝 Мои объявления';
+      if (path.startsWith('/create-ad')) return '➕ Подать объявление';
+      if (path.startsWith('/edit-ad')) return '✏️ Редактировать';
+      if (path.startsWith('/profile')) return '👤 Мой профиль';
+      if (path.startsWith('/login')) return '🔐 Вход';
+      return 'TürkmenBazar';
+    };
+
+    // Determine if header action should be shown
+    const showHeaderAction = () => {
+      const path = route.path;
+      // Don't show login button on homepage
+      if (path === '/') return false;
+      // Show user icon for logged in users on other pages
+      if (user.value) return true;
+      // Show login icon for guests on non-home pages
+      return path !== '/';
+    };
+
+    const getHeaderIcon = () => {
+      if (user.value) {
+        return 'fas fa-user';
+      }
+      return 'fas fa-sign-in-alt';
+    };
+
+    const handleHeaderAction = () => {
+      if (user.value) {
+        router.push("/profile");
+      } else {
+        router.push("/login");
+      }
+      closeMenu();
+    };
+
+    const handleAuth = () => {
+      if (user.value) {
+        logout();
+      } else {
+        router.push("/login");
+      }
+      closeMenu();
+    };
+
     const logout = () => {
       authStore.logout();
-      router.push("/login");
+      router.push("/");
     };
+
+    // Close menu when route changes
+    router.afterEach(() => {
+      closeMenu();
+    });
 
     return {
       user,
       isAdmin,
       isOperator,
       isAdminRoute,
+      menuOpen,
+      toggleMenu,
+      closeMenu,
+      getPageTitle,
+      showHeaderAction,
+      getHeaderIcon,
+      handleHeaderAction,
+      handleAuth,
       logout,
     };
   },
 };
 </script>
+
+<style scoped>
+/* Enhanced Menu Animations */
+.menu-container {
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-container.open {
+  transform: translateX(0);
+}
+
+/* Enhanced Header Styling */
+.mobile-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Enhanced FAB */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #2e6096 0%, #4a90e2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 8px 24px rgba(46, 96, 150, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.fab:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 12px 32px rgba(46, 96, 150, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #4a90e2 0%, #2e6096 100%);
+}
+
+.fab:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Menu item hover effects */
+.menu-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(46, 96, 150, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.menu-item:hover::before {
+  left: 100%;
+}
+
+/* Smooth transitions for all interactive elements */
+.header-icon,
+.menu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced scrollbar for menu */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #2e6096 0%, #4a90e2 100%);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #4a90e2 0%, #2e6096 100%);
+}
+</style>

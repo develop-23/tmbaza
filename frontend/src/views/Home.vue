@@ -1,198 +1,252 @@
 <template>
-  <div class="min-h-screen">
-    <!-- Hero Section with Top Banners -->
-    <div v-if="topBanners.length" class="relative mb-6 lg:mb-8">
-      <div class="grid gap-4 lg:gap-6">
-        <div 
-          v-for="banner in topBanners" 
-          :key="banner.id"
-          @click="handleBannerClick(banner)"
-          class="relative cursor-pointer group overflow-hidden rounded-2xl lg:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300"
+  <div class="min-h-screen dark-bg">
+    <!-- Enhanced Ticker/News Banner -->
+    <div class="h-14 overflow-hidden bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 relative">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-blue-600/10"></div>
+      <div class="ticker-track dark-text-secondary text-sm font-medium">
+        <div class="ticker-item bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg px-4 py-2 mx-2 border border-gray-600">
+          <i class="fas fa-star text-yellow-400 mr-2"></i>
+          Новые объявления каждый день!
+        </div>
+        <div class="ticker-item bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg px-4 py-2 mx-2 border border-gray-600">
+          <i class="fas fa-crown text-orange-400 mr-2"></i>
+          VIP-объявления получают больше просмотров
+        </div>
+        <div class="ticker-item bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg px-4 py-2 mx-2 border border-gray-600">
+          <i class="fas fa-shield-check text-green-400 mr-2"></i>
+          Безопасные сделки через платформу
+        </div>
+        <div class="ticker-item bg-gradient-to-r from-orange-900/30 to-red-900/30 rounded-lg px-4 py-2 mx-2 border border-gray-600">
+          <i class="fas fa-bolt text-blue-400 mr-2"></i>
+          Быстрое размещение объявлений
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Main Category Block -->
+    <div v-if="homeBlocks.length > 0" class="big-block bg-gradient-to-br from-gray-800 to-gray-900 m-4 h-64 rounded-2xl relative overflow-hidden cursor-pointer shadow-2xl border border-gray-700 group" @click="navigateToService(homeBlocks[0])">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-blue-600/20"></div>
+      
+      <!-- Animated Background Elements -->
+      <div class="absolute top-4 right-4 w-32 h-32 bg-blue-500/5 rounded-full animate-pulse"></div>
+      <div class="absolute bottom-8 left-8 w-24 h-24 bg-purple-500/5 rounded-full animate-bounce" style="animation-delay: 1s;"></div>
+      
+      <div class="relative h-full flex items-center justify-center">
+        <img 
+          v-if="homeBlocks[0].image"
+          :src="homeBlocks[0].image" 
+          :alt="homeBlocks[0].title"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         >
+        <div v-else class="text-center text-white">
+          <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+            <i class="fas fa-home text-3xl"></i>
+          </div>
+          <div class="text-2xl font-bold mb-2">{{ homeBlocks[0].title }}</div>
+          <div class="text-sm opacity-80">Найдите лучшие предложения</div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Label -->
+      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sm uppercase tracking-wide">
+            <i class="fas fa-star mr-2"></i>
+            {{ homeBlocks[0].title || 'Здесь твоё объявление' }}
+          </span>
+          <i class="fas fa-arrow-right text-lg opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+        </div>
+      </div>
+
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div class="loader"></div>
+      </div>
+    </div>
+
+    <!-- Enhanced Two Half Blocks -->
+    <div v-if="homeBlocks.length > 1" class="double-blocks flex px-2 space-x-2">
+      <div 
+        v-for="(block, index) in homeBlocks.slice(1, 3)" 
+        :key="block.id"
+        class="half-block bg-gradient-to-br from-gray-800 to-gray-900 h-56 rounded-2xl relative overflow-hidden cursor-pointer flex-1 shadow-xl border border-gray-700 group" 
+        @click="navigateToService(block)"
+      >
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-gradient-to-br from-green-600/20 via-emerald-600/10 to-green-600/20"></div>
+        
+        <!-- Animated Elements -->
+        <div class="absolute top-2 right-2 w-16 h-16 bg-green-500/5 rounded-full animate-ping" :style="{ animationDelay: `${index * 0.5}s` }"></div>
+        
+        <div class="relative h-full flex items-center justify-center">
           <img 
-            :src="banner.image" 
-            :alt="banner.title"
-            class="w-full h-40 lg:h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+            v-if="block.image"
+            :src="block.image" 
+            :alt="block.title"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           >
-          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-          <div class="absolute bottom-4 lg:bottom-6 left-4 lg:left-6 text-white">
-            <h3 class="font-semibold text-lg lg:text-2xl">{{ banner.title }}</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Enhanced Search Bar -->
-    <div class="mb-8 lg:mb-12">
-      <div class="relative group max-w-4xl mx-auto">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl lg:rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-        <div class="relative bg-white rounded-2xl lg:rounded-3xl shadow-lg border border-slate-200/50 p-1 lg:p-2">
-          <div class="flex items-center">
-            <div class="flex-1 relative">
-              <input 
-                v-model="searchQuery"
-                @keyup.enter="searchAds"
-                @focus="isSearchFocused = true"
-                @blur="isSearchFocused = false"
-                type="text" 
-                placeholder="Что ищете? Например: iPhone, квартира..."
-                class="w-full pl-12 lg:pl-16 pr-4 py-4 lg:py-6 bg-transparent text-slate-900 placeholder-slate-500 focus:outline-none text-lg lg:text-xl font-medium"
-              >
-              <div class="absolute left-4 lg:left-6 top-1/2 transform -translate-y-1/2 transition-all duration-200"
-                   :class="isSearchFocused ? 'text-blue-600 scale-110' : 'text-slate-400'">
-                <svg class="w-6 h-6 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
+          <div v-else class="text-center text-white">
+            <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="fas fa-car text-2xl"></i>
             </div>
-            <button 
-              @click="searchAds"
-              class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 lg:p-4 rounded-xl lg:rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 mr-1"
-            >
-              <svg class="w-6 h-6 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Service Blocks -->
-    <div v-if="homeBlocks.length" class="mb-8 lg:mb-12">
-      <div class="flex items-center justify-between mb-4 lg:mb-6">
-        <h2 class="text-xl lg:text-3xl font-bold text-slate-900">Услуги</h2>
-        <div class="w-12 lg:w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-      </div>
-      
-      <div class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-6">
-        <div 
-          v-for="(block, index) in homeBlocks" 
-          :key="block.id"
-          @click="navigateToService(block)"
-          class="group relative overflow-hidden bg-white rounded-2xl lg:rounded-3xl shadow-sm hover:shadow-xl border border-slate-100 cursor-pointer transition-all duration-300 hover:scale-105"
-          :style="{ animationDelay: `${index * 100}ms` }"
-        >
-          <!-- Gradient Overlay -->
-          <div class="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
-               :class="getBlockGradient(index)"></div>
-          
-          <div class="relative p-4 lg:p-6">
-            <div class="flex flex-col items-center text-center space-y-3 lg:space-y-4">
-              <div class="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg transition-all duration-300 group-hover:scale-110"
-                   :class="getCategoryIconBg(index)">
-                <img 
-                  v-if="block.image"
-                  :src="block.image" 
-                  :alt="block.title"
-                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                >
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <svg class="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-              </div>
-              
-              <div>
-                <h3 class="font-semibold text-slate-900 text-sm lg:text-base leading-tight">{{ block.title }}</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Ads Section -->
-    <div class="mb-8 lg:mb-12">
-      <div class="flex items-center justify-between mb-4 lg:mb-6">
-        <h2 class="text-xl lg:text-3xl font-bold text-slate-900">Последние объявления</h2>
-        <router-link 
-          to="/ads" 
-          class="text-blue-600 hover:text-blue-700 font-medium text-sm lg:text-base flex items-center group"
-        >
-          Все
-          <svg class="w-4 h-4 lg:w-5 lg:h-5 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </router-link>
-      </div>
-      
-      <div v-if="recentAds.length">
-        <!-- Desktop Grid Layout -->
-        <div class="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div 
-            v-for="(ad, index) in recentAds" 
-            :key="ad.id"
-            class="animate-fade-in-up"
-            :style="{ animationDelay: `${index * 50}ms` }"
-          >
-            <AdCard 
-              :ad="ad"
-              @click="$router.push(`/ads/${ad.id}`)"
-            />
+            <div class="text-lg font-bold mb-1">{{ block.title }}</div>
+            <div class="text-xs opacity-70">Популярная категория</div>
           </div>
         </div>
         
-        <!-- Mobile List Layout -->
-        <div class="lg:hidden space-y-3">
+        <!-- Enhanced Label -->
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 px-3">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-xs uppercase tracking-wide">
+              {{ block.title || 'Здесь тоже' }}
+            </span>
+            <i class="fas fa-chevron-right text-sm opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+          </div>
+        </div>
+
+        <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div class="loader"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Recent Ads Section -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
+        <div class="flex items-center">
+          <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></div>
+          <h2 class="text-xl font-bold dark-text">
+            <i class="fas fa-clock mr-2 text-blue-400"></i>
+            Последние объявления
+          </h2>
+        </div>
+        <router-link 
+          to="/ads" 
+          class="text-blue-400 hover:text-blue-300 font-medium text-sm flex items-center group transition-colors"
+        >
+          Все
+          <i class="fas fa-chevron-right ml-2 text-xs group-hover:translate-x-1 transition-transform"></i>
+        </router-link>
+      </div>
+      
+      <div v-if="recentAds.length" class="animate-fade-in">
+        <div 
+          v-for="(ad, index) in recentAds.slice(0, 10)" 
+          :key="ad.id"
+          class="animate-slide-up"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <AdCard 
+            :ad="ad"
+            @click="$router.push(`/ads/${ad.id}`)"
+          />
+          
+          <!-- Enhanced Banner Integration -->
           <div 
-            v-for="(ad, index) in recentAds" 
-            :key="ad.id"
-            class="animate-fade-in-up"
-            :style="{ animationDelay: `${index * 50}ms` }"
+            v-if="(index + 1) % 3 === 0 && bottomBanners.length > 0"
+            class="ad-banner cursor-pointer m-4 rounded-2xl overflow-hidden relative group shadow-xl"
+            @click="handleBannerClick(bottomBanners[Math.floor(Math.random() * bottomBanners.length)])"
           >
-            <AdCard 
-              :ad="ad"
-              @click="$router.push(`/ads/${ad.id}`)"
-            />
+            <!-- Banner Background Effects -->
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-900/30 to-pink-900/30"></div>
+            <div class="absolute top-2 right-2 w-16 h-16 bg-pink-500/10 rounded-full animate-pulse"></div>
+            
+            <!-- Banner Content -->
+            <div class="relative">
+              <!-- Banner Label -->
+              <div class="absolute top-3 left-3 z-10">
+                <span class="inline-block px-3 py-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold rounded-full animate-bounce">
+                  <i class="fas fa-bullhorn mr-1"></i>
+                  РЕКЛАМА
+                </span>
+              </div>
+              
+              <img 
+                :src="bottomBanners[Math.floor(Math.random() * bottomBanners.length)].image" 
+                :alt="bottomBanners[Math.floor(Math.random() * bottomBanners.length)].title"
+                class="w-full h-28 object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              
+              <!-- Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              
+              <!-- Hover Effect -->
+              <div class="absolute inset-0 bg-gradient-to-r from-pink-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
           </div>
         </div>
       </div>
       
-      <div v-else class="text-center py-12 lg:py-16">
-        <div class="w-20 h-20 lg:w-32 lg:h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6">
-          <svg class="w-10 h-10 lg:w-16 lg:h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </div>
-        <h3 class="text-lg lg:text-xl font-medium text-slate-900 mb-2">Пока нет объявлений</h3>
-        <p class="text-slate-500 mb-4 lg:mb-6 lg:text-lg">Станьте первым, кто разместит объявление!</p>
-        <router-link 
-          v-if="user"
-          to="/create-ad" 
-          class="btn-primary inline-block"
-        >
-          Создать объявление
-        </router-link>
-      </div>
-    </div>
-
-    <!-- Bottom Banners -->
-    <div v-if="bottomBanners.length" class="mb-8 lg:mb-12">
-      <div class="grid gap-4 lg:gap-6">
-        <div 
-          v-for="banner in bottomBanners" 
-          :key="banner.id"
-          @click="handleBannerClick(banner)"
-          class="relative cursor-pointer group overflow-hidden rounded-2xl lg:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <img 
-            :src="banner.image" 
-            :alt="banner.title"
-            class="w-full h-32 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+      <div v-else-if="!loading" class="empty-state mx-4 mt-8">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-purple-900/10 rounded-2xl"></div>
+        
+        <!-- Content -->
+        <div class="relative">
+          <!-- Icon with Animation -->
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center border-2 border-dashed border-gray-600">
+            <i class="fas fa-home text-4xl text-gray-500 animate-pulse"></i>
+          </div>
+          
+          <h3 class="text-2xl font-bold text-gray-300 mb-3">
+            🏠 Добро пожаловать!
+          </h3>
+          <p class="text-gray-400 leading-relaxed max-w-sm mx-auto mb-6">
+            Станьте первым, кто разместит объявление в нашем сообществе
+          </p>
+          
+          <router-link 
+            v-if="user"
+            to="/create-ad" 
+            class="btn-primary inline-flex items-center px-8 py-4"
           >
-          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            <i class="fas fa-plus mr-2"></i>
+            Создать объявление
+          </router-link>
         </div>
+        
+        <!-- Decorative Elements -->
+        <div class="absolute top-4 right-4 text-4xl opacity-10 animate-bounce">✨</div>
+        <div class="absolute bottom-4 left-4 text-3xl opacity-10 animate-pulse">🚀</div>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-12 lg:py-16">
-      <div class="relative">
-        <div class="w-12 h-12 lg:w-16 lg:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-        <div class="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-ping"></div>
+    <!-- Enhanced Bottom Banner -->
+    <div v-if="bottomBanners.length > 0" class="ad-block bg-gradient-to-r from-gray-800 to-gray-900 m-4 p-6 rounded-2xl relative border border-gray-700 shadow-xl group cursor-pointer" @click="handleBannerClick(bottomBanners[0])">
+      <!-- Background Effects -->
+      <div class="absolute inset-0 bg-gradient-to-r from-orange-900/20 to-red-900/20 rounded-2xl"></div>
+      <div class="absolute top-2 left-2 w-12 h-12 bg-orange-500/10 rounded-full animate-pulse"></div>
+      
+      <!-- Banner Label -->
+      <div class="absolute top-3 right-3 z-10">
+        <span class="inline-block px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full">
+          <i class="fas fa-ad mr-1"></i>
+          РЕКЛАМА
+        </span>
       </div>
+      
+      <div class="relative">
+        <img 
+          :src="bottomBanners[0].image" 
+          :alt="bottomBanners[0].title"
+          class="w-full h-16 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+      </div>
+    </div>
+
+    <!-- Enhanced Loading State -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-16">
+      <div class="relative">
+        <div class="loader"></div>
+        <div class="absolute inset-0 animate-ping">
+          <div class="w-8 h-8 border-2 border-blue-400 rounded-full opacity-30"></div>
+        </div>
+      </div>
+      <p class="mt-4 text-gray-400 animate-pulse">
+        <i class="fas fa-magic mr-2"></i>
+        Загружаем лучшие предложения...
+      </p>
     </div>
   </div>
 </template>
@@ -215,68 +269,94 @@ export default {
     
     const user = computed(() => authStore.user)
     const loading = ref(true)
-    const searchQuery = ref('')
     const homeBlocks = ref([])
     const recentAds = ref([])
     const topBanners = ref([])
     const bottomBanners = ref([])
-    const isSearchFocused = ref(false)
-
-    const blockGradients = [
-      'bg-gradient-to-br from-blue-500 to-blue-600',
-      'bg-gradient-to-br from-green-500 to-emerald-600',
-      'bg-gradient-to-br from-purple-500 to-purple-600',
-      'bg-gradient-to-br from-orange-500 to-red-500',
-      'bg-gradient-to-br from-pink-500 to-rose-600',
-      'bg-gradient-to-br from-indigo-500 to-blue-600',
-      'bg-gradient-to-br from-teal-500 to-cyan-600',
-      'bg-gradient-to-br from-yellow-500 to-orange-500'
-    ]
-
-    const getBlockGradient = (index) => {
-      return blockGradients[index % blockGradients.length]
-    }
-
-    const getCategoryIconBg = (index) => {
-      return blockGradients[index % blockGradients.length]
-    }
 
     const loadHomeData = async () => {
       try {
         loading.value = true
         
         // Load blocks
-        const blocksResponse = await api.get('/blocks')
-        homeBlocks.value = blocksResponse.data.filter(block => block.active)
+        try {
+          const blocksResponse = await api.get('/blocks')
+          homeBlocks.value = blocksResponse.data.filter(block => block.active) || []
+        } catch (error) {
+          console.error('Failed to load blocks:', error)
+          // Enhanced fallback data
+          homeBlocks.value = [
+            { 
+              id: 1, 
+              title: 'Недвижимость', 
+              image: null,
+              description: 'Найдите дом своей мечты'
+            },
+            { 
+              id: 2, 
+              title: 'Автомобили', 
+              image: null,
+              description: 'Лучшие предложения авто'
+            },
+            { 
+              id: 3, 
+              title: 'Электроника', 
+              image: null,
+              description: 'Современные гаджеты'
+            }
+          ]
+        }
 
         // Load recent ads
-        const adsResponse = await api.get('/ads?limit=10')
-        recentAds.value = adsResponse.data.data.filter(item => !item.__banner)
+        try {
+          const adsResponse = await api.get('/ads?limit=15')
+          recentAds.value = adsResponse.data.data?.filter(item => !item.__banner) || []
+        } catch (error) {
+          console.error('Failed to load ads:', error)
+          recentAds.value = []
+        }
 
         // Load banners
-        const bannersResponse = await api.get('/banners')
-        const banners = bannersResponse.data.filter(banner => banner.active)
-        
-        topBanners.value = banners.filter(banner => banner.position === 'top')
-        bottomBanners.value = banners.filter(banner => banner.position === 'bottom')
+        try {
+          const bannersResponse = await api.get('/banners')
+          const banners = bannersResponse.data?.filter(banner => banner.active) || []
+          
+          topBanners.value = banners.filter(banner => banner.position === 'top')
+          bottomBanners.value = banners.filter(banner => banner.position === 'bottom' || banner.position === 'middle')
+          
+          // Enhanced fallback banner
+          if (bottomBanners.value.length === 0) {
+            bottomBanners.value = [
+              {
+                id: 'fallback',
+                title: 'Реклама здесь',
+                image: 'https://via.placeholder.com/600x100/2d2d2d/666?text=Разместите+вашу+рекламу+здесь',
+                link: '#'
+              }
+            ]
+          }
+        } catch (error) {
+          console.error('Failed to load banners:', error)
+          bottomBanners.value = [
+            {
+              id: 'fallback',
+              title: 'Реклама здесь',
+              image: 'https://via.placeholder.com/600x100/2d2d2d/666?text=Разместите+вашу+рекламу+здесь',
+              link: '#'
+            }
+          ]
+        }
       } catch (error) {
         console.error('Failed to load home data:', error)
-        // No toast notification for data loading failures
       } finally {
         loading.value = false
       }
     }
 
-    const searchAds = () => {
-      if (searchQuery.value.trim()) {
-        router.push(`/ads?q=${encodeURIComponent(searchQuery.value)}`)
-      } else {
-        router.push('/ads')
-      }
-    }
-
     const navigateToService = (block) => {
-      if (block.service) {
+      if (block.categoryId) {
+        router.push(`/ads?categoryId=${block.categoryId}`)
+      } else if (block.service) {
         router.push(`/ads?service=${block.service}`)
       } else {
         router.push('/ads')
@@ -286,12 +366,11 @@ export default {
     const handleBannerClick = async (banner) => {
       try {
         await api.post(`/banners/${banner.id}/click`)
-        if (banner.link) {
+        if (banner.link && banner.link !== '#') {
           window.open(banner.link, '_blank')
         }
       } catch (error) {
         console.error('Failed to track banner click:', error)
-        // No toast notification for banner click failures
       }
     }
 
@@ -302,27 +381,85 @@ export default {
     return {
       user,
       loading,
-      searchQuery,
       homeBlocks,
       recentAds,
       topBanners,
       bottomBanners,
-      isSearchFocused,
-      searchAds,
       navigateToService,
-      handleBannerClick,
-      getBlockGradient,
-      getCategoryIconBg
+      handleBannerClick
     }
   }
 }
 </script>
 
 <style scoped>
-@keyframes fadeInUp {
+/* Enhanced Ticker Animation */
+.ticker-track {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  animation: ticker-scroll 40s infinite linear;
+  position: absolute;
+  left: 100%;
+  white-space: nowrap;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-400%); }
+}
+
+/* Enhanced Block Styles */
+.big-block, .half-block {
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.big-block:hover, .half-block:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.big-block {
+  height: 256px;
+}
+
+.half-block {
+  height: 224px;
+}
+
+.double-blocks {
+  display: flex;
+  flex-direction: row;
+  margin: 0 8px;
+}
+
+/* Enhanced Ticker Items */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  height: 40px;
+  margin: 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+/* Staggered Animations */
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -330,8 +467,22 @@ export default {
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-  opacity: 0;
+/* Banner Enhancements */
+.ad-banner {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ad-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.ad-block {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ad-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 </style>

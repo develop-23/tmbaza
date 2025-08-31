@@ -1,185 +1,161 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-    <!-- Header -->
-    <div class="px-4 lg:px-6 py-6 lg:py-8">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-8 lg:mb-12">
-          <h1 class="text-2xl lg:text-4xl font-bold text-slate-900 mb-2 lg:mb-4">Категории</h1>
-          <p class="text-slate-600 lg:text-lg">Выберите категорию для поиска объя��лений</p>
-          <div class="w-16 lg:w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mx-auto mt-3 lg:mt-4"></div>
-        </div>
-
-        <!-- Quick Search -->
-        <div class="relative mb-6 lg:mb-8 max-w-2xl mx-auto">
-          <input
-            v-model="searchTerm"
-            type="text"
-            placeholder="Поиск категорий..."
-            class="w-full pl-10 lg:pl-12 pr-4 py-3 lg:py-4 bg-white rounded-2xl lg:rounded-3xl shadow-sm border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-lg lg:text-xl"
-          >
-          <div class="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-12 lg:py-16">
-      <div class="relative">
-        <div class="w-12 h-12 lg:w-16 lg:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-        <div class="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-ping"></div>
-      </div>
-    </div>
-
-    <!-- Categories Grid -->
-    <div v-else class="px-4 lg:px-6 pb-8 lg:pb-12">
-      <div class="max-w-6xl mx-auto space-y-4 lg:space-y-6">
-        <div 
-          v-for="(category, index) in filteredCategories" 
-          :key="category.id"
-          class="group bg-white rounded-2xl lg:rounded-3xl shadow-sm hover:shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:scale-[1.02] animate-fade-in-up"
-          :style="{ animationDelay: `${index * 100}ms` }"
+  <div class="min-h-screen dark-bg">
+    <!-- Enhanced Tab Navigation -->
+    <nav class="tabs">
+      <ul class="flex">
+        <li 
+          class="tab"
+          :class="{ active: currentTab === 'all' }"
+          @click="setTab('all')"
         >
-          <!-- Main Category -->
-          <div 
-            @click="toggleCategory(category)"
-            class="flex items-center p-4 lg:p-6 cursor-pointer relative overflow-hidden"
-          >
-            <!-- Background Pattern -->
-            <div class="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300"
-                 :class="getCategoryGradient(index)"></div>
-            
-            <!-- Icon/Image -->
-            <div class="relative z-10 flex-shrink-0 mr-4 lg:mr-6">
-              <div class="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg transition-all duration-300 group-hover:scale-110"
-                   :class="getCategoryIconBg(index)">
-                <img 
-                  v-if="category.image"
-                  :src="category.image" 
-                  :alt="category.name"
-                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                >
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <svg class="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getCategoryIcon(category.name)" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          <i class="fas fa-list mr-2"></i>
+          Все
+        </li>
+        <li 
+          class="tab"
+          :class="{ active: currentTab === 'popular' }"
+          @click="setTab('popular')"
+        >
+          <i class="fas fa-fire mr-2"></i>
+          Популярные
+        </li>
+        <li 
+          class="tab"
+          :class="{ active: currentTab === 'services' }"
+          @click="setTab('services')"
+        >
+          <i class="fas fa-cog mr-2"></i>
+          Услуги
+        </li>
+      </ul>
+    </nav>
 
-            <!-- Content -->
-            <div class="relative z-10 flex-1 min-w-0">
-              <h3 class="font-semibold text-lg lg:text-xl text-slate-900 group-hover:text-blue-600 transition-colors">
+    <!-- Enhanced Loading State -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-16">
+      <div class="relative">
+        <div class="loader"></div>
+        <div class="absolute inset-0 animate-ping">
+          <div class="w-8 h-8 border-2 border-blue-400 rounded-full opacity-30"></div>
+        </div>
+      </div>
+      <p class="mt-4 text-gray-400 animate-pulse">
+        <i class="fas fa-tags mr-2"></i>
+        Загружаем категории...
+      </p>
+    </div>
+
+    <!-- Enhanced Categories List -->
+    <ul v-else class="category-list animate-fade-in">
+      <li 
+        v-for="(category, index) in filteredCategories" 
+        :key="category.id"
+        class="category-item group"
+        :class="{ expanded: expandedCategories.includes(category.id) }"
+        @click="toggleCategory(category)"
+        :style="{ animationDelay: `${index * 0.1}s` }"
+      >
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        <!-- Category Icon -->
+        <div class="relative z-10 flex items-center">
+          <div class="w-12 h-12 rounded-xl mr-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+               :style="{ background: getCategoryGradient(index) }">
+            <i :class="getCategoryIcon(category.name)" class="text-white text-xl"></i>
+          </div>
+          
+          <!-- Category Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white transition-colors">
                 {{ category.name }}
               </h3>
-              <div class="flex items-center space-x-4 mt-1 lg:mt-2">
-                <p v-if="getSubcategories(category.id).length" class="text-sm lg:text-base text-slate-500">
-                  {{ getSubcategories(category.id).length }} подкатегорий
-                </p>
-                <span v-if="category.adsCount" class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-medium bg-blue-100 text-blue-800">
-                  {{ category.adsCount }} объявлений
+              <div class="flex items-center space-x-2">
+                <!-- Ads Count Badge -->
+                <span v-if="category.adsCount" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold rounded-full">
+                  {{ category.adsCount }}
                 </span>
+                <!-- Expand Icon -->
+                <i 
+                  v-if="getSubcategories(category.id).length > 0"
+                  class="fas fa-chevron-right expand-icon transition-transform duration-300 text-gray-400 group-hover:text-white"
+                  @click.stop="toggleExpansion(category.id)"
+                ></i>
+                <i 
+                  v-else
+                  class="fas fa-arrow-right text-gray-400 group-hover:text-blue-400 transition-colors"
+                ></i>
               </div>
             </div>
-
-            <!-- Expand Icon -->
-            <div class="relative z-10 flex items-center ml-2 lg:ml-4">
-              <div v-if="getSubcategories(category.id).length" 
-                   class="p-2 lg:p-3 rounded-xl lg:rounded-2xl bg-slate-100 group-hover:bg-blue-100 transition-colors">
-                <svg 
-                  class="w-5 h-5 lg:w-6 lg:h-6 text-slate-600 group-hover:text-blue-600 transition-all duration-300"
-                  :class="{ 'rotate-90': expandedCategories.includes(category.id) }"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div v-else class="p-2 lg:p-3 rounded-xl lg:rounded-2xl bg-slate-100 group-hover:bg-blue-100 transition-colors">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-slate-600 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </div>
-            </div>
+            <p v-if="getSubcategories(category.id).length" class="text-sm text-gray-500 mt-1">
+              {{ getSubcategories(category.id).length }} подкатегорий
+            </p>
           </div>
+        </div>
 
-          <!-- Subcategories -->
-          <div 
-            v-if="expandedCategories.includes(category.id) && getSubcategories(category.id).length"
-            class="border-t border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/30"
+        <!-- Enhanced Subcategories -->
+        <ul v-if="getSubcategories(category.id).length > 0" class="subcategories">
+          <li 
+            v-for="(subcategory, subIndex) in getSubcategories(category.id)" 
+            :key="subcategory.id"
+            class="subcategory-item group/sub"
+            @click.stop="navigateToAds(subcategory)"
+            :style="{ animationDelay: `${(index * 0.1) + (subIndex * 0.05)}s` }"
           >
-            <div class="p-2 lg:p-4">
-              <!-- Desktop Grid Layout -->
-              <div class="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-3">
-                <div 
-                  v-for="(subcategory, subIndex) in getSubcategories(category.id)" 
-                  :key="subcategory.id"
-                  @click.stop="navigateToAds(subcategory)"
-                  class="group/sub flex items-center justify-between px-4 py-3 hover:bg-white hover:shadow-sm rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-                >
-                  <div class="flex items-center flex-1 min-w-0">
-                    <div class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 mr-3 flex-shrink-0"></div>
-                    <span class="font-medium text-slate-700 group-hover/sub:text-blue-600 transition-colors truncate">
-                      {{ subcategory.name }}
-                    </span>
-                  </div>
-                  
-                  <div class="flex items-center space-x-2 ml-2">
-                    <span v-if="subcategory.adsCount" class="text-xs text-slate-500 bg-white px-2 py-1 rounded-full">
-                      {{ subcategory.adsCount }}
-                    </span>
-                    <svg class="w-4 h-4 text-slate-400 group-hover/sub:text-blue-500 group-hover/sub:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 bg-gradient-to-r from-green-600/10 to-emerald-600/10 opacity-0 group-hover/sub:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+            
+            <div class="relative z-10 flex items-center">
+              <div class="w-8 h-8 rounded-lg mr-3 bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center transition-all duration-300 group-hover/sub:scale-110">
+                <i :class="getSubcategoryIcon(subcategory.name)" class="text-white text-sm"></i>
               </div>
               
-              <!-- Mobile List Layout -->
-              <div class="lg:hidden grid grid-cols-1 gap-2">
-                <div 
-                  v-for="(subcategory, subIndex) in getSubcategories(category.id)" 
-                  :key="subcategory.id"
-                  @click.stop="navigateToAds(subcategory)"
-                  class="group/sub flex items-center justify-between px-4 py-3 hover:bg-white hover:shadow-sm rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-                >
-                  <div class="flex items-center flex-1 min-w-0">
-                    <div class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 mr-3 flex-shrink-0"></div>
-                    <span class="font-medium text-slate-700 group-hover/sub:text-blue-600 transition-colors truncate">
-                      {{ subcategory.name }}
-                    </span>
-                  </div>
-                  
-                  <div class="flex items-center space-x-2 ml-2">
-                    <span v-if="subcategory.adsCount" class="text-xs text-slate-500 bg-white px-2 py-1 rounded-full">
-                      {{ subcategory.adsCount }}
-                    </span>
-                    <svg class="w-4 h-4 text-slate-400 group-hover/sub:text-blue-500 group-hover/sub:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
+              <div class="flex-1 min-w-0">
+                <span class="font-medium text-gray-300 group-hover/sub:text-white transition-colors">
+                  {{ subcategory.name }}
+                </span>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <span v-if="subcategory.adsCount" class="text-xs text-gray-500 bg-gray-700 px-2 py-1 rounded-full">
+                  {{ subcategory.adsCount }}
+                </span>
+                <i class="fas fa-chevron-right text-xs text-gray-500 group-hover/sub:text-green-400 group-hover/sub:translate-x-1 transition-all"></i>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
 
-      <!-- No Results -->
-      <div v-if="filteredCategories.length === 0" class="text-center py-12 lg:py-16 max-w-2xl mx-auto">
-        <div class="w-20 h-20 lg:w-32 lg:h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6">
-          <svg class="w-10 h-10 lg:w-16 lg:h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+    <!-- Enhanced No Results State -->
+    <div v-if="!loading && filteredCategories.length === 0" class="empty-state mx-4 mt-8">
+      <!-- Animated Background -->
+      <div class="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-pink-900/10 rounded-2xl"></div>
+      
+      <!-- Content -->
+      <div class="relative">
+        <!-- Icon with Animation -->
+        <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center border-2 border-dashed border-gray-600">
+          <i class="fas fa-search text-4xl text-gray-500 animate-pulse"></i>
         </div>
-        <h3 class="text-lg lg:text-xl font-semibold text-slate-900 mb-2">Категории не найдены</h3>
-        <p class="text-slate-500 lg:text-lg mb-4 lg:mb-6">Попробуйте изменить поисковый запрос</p>
-        <button @click="searchTerm = ''" class="btn-secondary">
+        
+        <h3 class="text-2xl font-bold text-gray-300 mb-3">
+          🏷️ Категории не найдены
+        </h3>
+        <p class="text-gray-400 leading-relaxed max-w-sm mx-auto mb-6">
+          Попробуйте изменить фильтр или посмотреть все категории
+        </p>
+        
+        <button @click="setTab('all')" class="btn-primary flex items-center px-8 py-4">
+          <i class="fas fa-list mr-2"></i>
           Показать все категории
         </button>
       </div>
+      
+      <!-- Decorative Elements -->
+      <div class="absolute top-4 right-4 text-4xl opacity-10 animate-bounce">🏪</div>
+      <div class="absolute bottom-4 left-4 text-3xl opacity-10 animate-pulse">🔍</div>
     </div>
   </div>
 </template>
@@ -197,52 +173,67 @@ export default {
     const loading = ref(true)
     const categories = ref([])
     const expandedCategories = ref([])
-    const searchTerm = ref('')
-
-    const categoryGradients = [
-      'bg-gradient-to-br from-blue-500 to-blue-600',
-      'bg-gradient-to-br from-green-500 to-emerald-600',
-      'bg-gradient-to-br from-purple-500 to-purple-600',
-      'bg-gradient-to-br from-orange-500 to-red-500',
-      'bg-gradient-to-br from-pink-500 to-rose-600',
-      'bg-gradient-to-br from-indigo-500 to-blue-600',
-      'bg-gradient-to-br from-teal-500 to-cyan-600',
-      'bg-gradient-to-br from-yellow-500 to-orange-500'
-    ]
+    const currentTab = ref('all')
 
     const categoryIcons = {
-      'Недвижимость': 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-      'Транспорт': 'M8 12V9a4 4 0 118 0m-4 8h0m8-12v0.01M12 14h0m0 4v.01M16 8h0',
-      'Электроника': 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
-      'Работа': 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6',
-      'Услуги': 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+      'Недвижимость': 'fas fa-building',
+      'Транспорт': 'fas fa-car',
+      'Электроника': 'fas fa-laptop',
+      'Работа': 'fas fa-briefcase',
+      'Услуги': 'fas fa-cog',
+      'Мода': 'fas fa-tshirt',
+      'Спорт': 'fas fa-futbol',
+      'Дом': 'fas fa-home',
+      'Животные': 'fas fa-paw',
+      'Хобби': 'fas fa-guitar'
     }
+
+    const subcategoryIcons = {
+      'Квартиры': 'fas fa-home',
+      'Дома': 'fas fa-house-user',
+      'Коммерческая': 'fas fa-store',
+      'Автомобили': 'fas fa-car-side',
+      'Мотоциклы': 'fas fa-motorcycle',
+      'Грузовики': 'fas fa-truck',
+      'Телефоны': 'fas fa-mobile-alt',
+      'Ноутбуки': 'fas fa-laptop',
+      '��В': 'fas fa-tv',
+      'Вакансии': 'fas fa-user-tie',
+      'Резюме': 'fas fa-file-alt'
+    }
+
+    const categoryGradients = [
+      'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+      'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+      'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+      'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+      'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+      'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+      'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
+    ]
 
     const parentCategories = computed(() => 
       categories.value.filter(cat => !cat.parentId && cat.active)
     )
 
     const filteredCategories = computed(() => {
-      if (!searchTerm.value) return parentCategories.value
+      let cats = parentCategories.value
       
-      return parentCategories.value.filter(category => 
-        category.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-        getSubcategories(category.id).some(sub => 
-          sub.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+      if (currentTab.value === 'popular') {
+        cats = cats.filter(cat => cat.adsCount > 10)
+      } else if (currentTab.value === 'services') {
+        cats = cats.filter(cat => 
+          cat.name.toLowerCase().includes('услуг') || 
+          cat.name.toLowerCase().includes('сервис')
         )
-      )
+      }
+      
+      return cats
     })
 
     const getSubcategories = (parentId) => 
       categories.value.filter(cat => cat.parentId === parentId && cat.active)
-
-    const getCategoryGradient = (index) => {
-      return categoryGradients[index % categoryGradients.length]
-    }
-
-    const getCategoryIconBg = (index) => {
-      return categoryGradients[index % categoryGradients.length]
-    }
 
     const getCategoryIcon = (categoryName) => {
       for (const [key, icon] of Object.entries(categoryIcons)) {
@@ -250,44 +241,171 @@ export default {
           return icon
         }
       }
-      // Default icon
-      return 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+      return 'fas fa-list'
+    }
+
+    const getSubcategoryIcon = (subcategoryName) => {
+      for (const [key, icon] of Object.entries(subcategoryIcons)) {
+        if (subcategoryName.toLowerCase().includes(key.toLowerCase())) {
+          return icon
+        }
+      }
+      return 'fas fa-tag'
+    }
+
+    const getCategoryGradient = (index) => {
+      return categoryGradients[index % categoryGradients.length]
     }
 
     const loadCategories = async () => {
       try {
         loading.value = true
-        const response = await api.get('/categories/with-counts')
-        categories.value = response.data
+        
+        try {
+          const response = await api.get('/categories/with-counts')
+          categories.value = response.data
+        } catch (error) {
+          const response = await api.get('/categories')
+          categories.value = response.data || []
+        }
       } catch (error) {
         console.error('Failed to load categories:', error)
-        // Fallback to regular categories endpoint
-        try {
-          const response = await api.get('/categories')
-          categories.value = response.data
-        } catch (fallbackError) {
-          console.error('Failed to load categories (fallback):', fallbackError)
-          // No toast notification for data loading failures
-        }
+        // Enhanced fallback mock data
+        categories.value = [
+          {
+            id: 1,
+            name: "Транспорт",
+            active: true,
+            adsCount: 150
+          },
+          {
+            id: 2,
+            name: "Недвижимость",
+            active: true,
+            adsCount: 89
+          },
+          {
+            id: 3,
+            name: "Электроника",
+            active: true,
+            adsCount: 234
+          },
+          {
+            id: 4,
+            name: "Работа",
+            active: true,
+            adsCount: 45
+          },
+          {
+            id: 5,
+            name: "Услуги",
+            active: true,
+            adsCount: 67
+          },
+          // Subcategories
+          {
+            id: 101,
+            name: "Автомобили",
+            parentId: 1,
+            active: true,
+            adsCount: 120
+          },
+          {
+            id: 102,
+            name: "Мотоциклы",
+            parentId: 1,
+            active: true,
+            adsCount: 20
+          },
+          {
+            id: 103,
+            name: "Грузовики",
+            parentId: 1,
+            active: true,
+            adsCount: 10
+          },
+          {
+            id: 201,
+            name: "Квартиры",
+            parentId: 2,
+            active: true,
+            adsCount: 45
+          },
+          {
+            id: 202,
+            name: "Дома",
+            parentId: 2,
+            active: true,
+            adsCount: 30
+          },
+          {
+            id: 203,
+            name: "Коммерческая",
+            parentId: 2,
+            active: true,
+            adsCount: 14
+          },
+          {
+            id: 301,
+            name: "Телефоны",
+            parentId: 3,
+            active: true,
+            adsCount: 180
+          },
+          {
+            id: 302,
+            name: "Ноутбуки",
+            parentId: 3,
+            active: true,
+            adsCount: 34
+          },
+          {
+            id: 303,
+            name: "ТВ",
+            parentId: 3,
+            active: true,
+            adsCount: 20
+          },
+          {
+            id: 401,
+            name: "Вакансии",
+            parentId: 4,
+            active: true,
+            adsCount: 25
+          },
+          {
+            id: 402,
+            name: "Резюме",
+            parentId: 4,
+            active: true,
+            adsCount: 20
+          }
+        ]
       } finally {
         loading.value = false
       }
+    }
+
+    const setTab = (tab) => {
+      currentTab.value = tab
+      // Close all expanded categories when switching tabs
+      expandedCategories.value = []
     }
 
     const toggleCategory = (category) => {
       const subcategories = getSubcategories(category.id)
       
       if (subcategories.length === 0) {
-        // No subcategories, navigate directly
         navigateToAds(category)
+      }
+    }
+
+    const toggleExpansion = (categoryId) => {
+      const index = expandedCategories.value.indexOf(categoryId)
+      if (index > -1) {
+        expandedCategories.value.splice(index, 1)
       } else {
-        // Toggle expansion
-        const index = expandedCategories.value.indexOf(category.id)
-        if (index > -1) {
-          expandedCategories.value.splice(index, 1)
-        } else {
-          expandedCategories.value.push(category.id)
-        }
+        expandedCategories.value.push(categoryId)
       }
     }
 
@@ -301,26 +419,128 @@ export default {
 
     return {
       loading,
-      categories: parentCategories,
+      categories: filteredCategories,
       expandedCategories,
-      searchTerm,
-      filteredCategories,
+      currentTab,
       getSubcategories,
-      getCategoryGradient,
-      getCategoryIconBg,
       getCategoryIcon,
+      getSubcategoryIcon,
+      getCategoryGradient,
+      setTab,
       toggleCategory,
-      navigateToAds
+      toggleExpansion,
+      navigateToAds,
+      filteredCategories
     }
   }
 }
 </script>
 
 <style scoped>
-@keyframes fadeInUp {
+/* Enhanced Category Items */
+.category-item {
+  position: relative;
+  overflow: hidden;
+  margin: 8px 16px;
+  padding: 20px;
+  background: linear-gradient(145deg, #2b2b2b 0%, #383838 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.category-item:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(145deg, #383838 0%, #454545 100%);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.expand-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-item.expanded .expand-icon {
+  transform: rotate(90deg);
+}
+
+/* Enhanced Subcategories */
+.subcategories {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  space-y: 8px;
+}
+
+.category-item.expanded .subcategories {
+  display: block;
+  animation: slideDown 0.3s ease-out;
+}
+
+.subcategory-item {
+  position: relative;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: linear-gradient(145deg, #383838 0%, #454545 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.subcategory-item:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(145deg, #454545 0%, #525252 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Animations */
+@keyframes slideDown {
   from {
     opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
     transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered entrance animations */
+.category-item {
+  animation: slideUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -328,8 +548,8 @@ export default {
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+.subcategory-item {
+  animation: slideUp 0.4s ease-out forwards;
   opacity: 0;
 }
 </style>
